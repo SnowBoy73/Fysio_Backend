@@ -35,7 +35,7 @@ export class BookingGateway
     }
     
     
-    
+   /* 
     @SubscribeMessage('addBooking')
    // async handlePostBookingEvent(
     async handlePostBookingEvent(
@@ -60,6 +60,8 @@ export class BookingGateway
             client._error(e.message);
         }
     }
+    
+    */
 /*
     @SubscribeMessage('requestDateBookings')
     async handleGetDateBookingsEvent(
