@@ -52,16 +52,17 @@ export class BookingGateway
         );
         try {
             let newBooking: BookingModel = JSON.parse(JSON.stringify(bookingDto));
-            newBooking = await this.bookingService.addBooking(newBooking);
-            console.log(
-                ' new booking email: ' +
-                newBooking.email +
-                ': new booking date: ' +
-                newBooking.date +
-                ' new time: ' +
-                newBooking.time,
-            );
-            this.server.emit('newBooking', newBooking);
+            let newBooking2 = await this.bookingService.addBooking(newBooking);
+   //     
+            if (newBooking2 == null) {
+                console.log('GATEWAY: booking is null: NO new booking emitted');
+
+
+            } else {
+                console.log('GATEWAY: emits booking: ', newBooking2);
+
+                this.server.emit('newBooking2', newBooking2);
+            }
         } catch (e) {
             //client._error(e.message);  // PROBLEM HERE
         }

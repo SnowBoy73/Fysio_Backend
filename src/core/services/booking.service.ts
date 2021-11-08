@@ -19,10 +19,12 @@ export class BookingService implements IBookingService {
         console.log('booking service: addBooking');
 // NEW...
         const bookingDB = await this.bookingRepository.findOne({
-            where: {date: newBooking.date}, // && (time: newBooking.time)},  // NEED to add time check
+            // where: {date: newBooking.date}, // && (time: newBooking.time)},  // NEED to add time check
+            where: {date: newBooking.date, time: newBooking.time}, // && (time: newBooking.time)},  // NEED to add time check
+
         });
         if (!bookingDB) {
-            console.log('added booking NOT FOUND !!');
+            console.log('TIME SLOT IS AVAILABLE !! Adding Booking');
             
             let createBooking = this.bookingRepository.create();
             createBooking.date = newBooking.date;
@@ -33,11 +35,13 @@ export class BookingService implements IBookingService {
 
             createBooking = await this.bookingRepository.save(createBooking);
             const addedBooking = JSON.parse(JSON.stringify(createBooking));
+            console.log('SERVICE: returns booking: ', addedBooking);
+
             return addedBooking;
             //return null;
         } else {
-            console.log('added booking found - id:' + bookingDB.date + '  email: ' + bookingDB.email);
-
+            console.log('Booking already  found - id:' + bookingDB.date + '  email: ' + bookingDB.email);
+            console.log('DB NOT UPDATED');
           
         }
     }
