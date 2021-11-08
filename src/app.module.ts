@@ -6,11 +6,10 @@ import { AdminController } from './api/controllers/admin.controller';
 //import { AdminModule } from './api/admin.module';
 import { BookingModule } from './api/booking.module';
 import {AdminService} from "./core/services/admin.service";
-import { BookingsModule } from './bookings/bookings.module';
 
 @Module({
   imports: [
-    //BookingModule,
+    BookingModule,
     //AdminModule,
     ConfigModule.forRoot({
       validationSchema: Joi.object({
@@ -23,7 +22,6 @@ import { BookingsModule } from './bookings/bookings.module';
       }),
     }),
     DatabaseModule,
-    BookingsModule,
   ],
   controllers: [], // AdminController
   providers: [

@@ -16,7 +16,30 @@ export class BookingService implements IBookingService {
     ) {}
 
     async addBooking(newBooking: BookingModel): Promise<BookingModel> {
-    return null;
+        console.log('booking service: addBooking');
+// NEW...
+        const bookingDB = await this.bookingRepository.findOne({
+            where: {date: newBooking.date}, // && (time: newBooking.time)},  // NEED to add time check
+        });
+        if (!bookingDB) {
+            console.log('added booking NOT FOUND !!');
+            
+            let createBooking = this.bookingRepository.create();
+            createBooking.date = newBooking.date;
+            createBooking.time = newBooking.time;
+            createBooking.service = newBooking.service;
+            createBooking.email = newBooking.email;
+            createBooking.phone = newBooking.phone;
+
+            createBooking = await this.bookingRepository.save(createBooking);
+            const addedBooking = JSON.parse(JSON.stringify(createBooking));
+            return addedBooking;
+            //return null;
+        } else {
+            console.log('added booking found - id:' + bookingDB.date + '  email: ' + bookingDB.email);
+
+          
+        }
     }
 
     async getBookingsByDate(date: string): Promise<BookingModel[]> {
