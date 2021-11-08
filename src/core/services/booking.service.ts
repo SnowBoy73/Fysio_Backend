@@ -16,7 +16,7 @@ export class BookingService implements IBookingService {
     ) {}
 
     async addBooking(newBooking: BookingModel): Promise<BookingModel> {
-            return null;
+    return null;
     }
 
     async getBookingsByDate(date: string): Promise<BookingModel[]> {

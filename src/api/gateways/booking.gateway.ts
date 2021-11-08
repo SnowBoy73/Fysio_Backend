@@ -24,10 +24,22 @@ export class BookingGateway
     constructor(
         @Inject(IBookingServiceProvider) private bookingService: IBookingService,
     ) {}
-
     @WebSocketServer() server;
+
+
+
+    @SubscribeMessage('bookings')
+    handleBookingEvent(@MessageBody() data: string): string {
+        console.log('handleBookingEvent' + data);
+        return data + 'hello';
+    }
+    
+    
+    
     @SubscribeMessage('addBooking')
+   // async handlePostBookingEvent(
     async handlePostBookingEvent(
+
         @MessageBody() bookingDto: BookingDTO,
         @ConnectedSocket() client: Socket,
     ): Promise<void> {
@@ -48,7 +60,7 @@ export class BookingGateway
             client._error(e.message);
         }
     }
-
+/*
     @SubscribeMessage('requestDateBookings')
     async handleGetDateBookingsEvent(
         @MessageBody() dateDto: DateModel,

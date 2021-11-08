@@ -4,11 +4,29 @@ import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors({
+  /*app.enableCors({
     origin: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   });
+*/
   const configService: ConfigService = app.get(ConfigService);
-  await app.listen(configService.get('PORT') || 8080);
+  await app.listen(configService.get('PORT') || 4200);
+  
+  
+  
+  /*handlePreflightRequest: (req, res) => {
+    res.writeHead(200, {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST",
+      "Access-Control-Allow-Headers": "my-custom-header",
+      "Access-Control-Allow-Credentials": true
+    });
+    res.end();
+  }
+*/
+
+  
+  
+ 
 }
 bootstrap();

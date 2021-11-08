@@ -10,10 +10,7 @@ export class BookingEntity {
     
     @Column({ unique: false })
     public time: string;
-
-    @Column({ unique: false })
-    public duration: string;
-
+    
     @Column({ unique: false })
     public service: string;
 
