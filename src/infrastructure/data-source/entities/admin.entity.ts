@@ -2,7 +2,7 @@ import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class AdminEntity {
-    @PrimaryGeneratedColumn("uuid")  // NEEDED??
+    @PrimaryGeneratedColumn("uuid")
     public id: string;
 
     @Column({ unique: true })

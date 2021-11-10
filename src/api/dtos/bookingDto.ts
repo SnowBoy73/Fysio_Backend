@@ -1,5 +1,4 @@
-export interface BookingModel {
-    id: string; // needed?
+export interface BookingDto {
     date: string;
     time: string;
     service: string;

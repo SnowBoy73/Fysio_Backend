@@ -13,10 +13,8 @@ import {
     IBookingService,
     IBookingServiceProvider,
 } from '../../core/primary-ports/booking.service.interface';
-import { ScheduleDTO } from '../dtos/schedule.dto';
-import { BookingDTO } from '../dtos/booking.dto';
+import { BookingDto } from '../dtos/bookingDto';
 import { BookingModel } from '../../core/models/booking.model';
-import {DateModel} from "../../core/models/date.model";
 
 @WebSocketGateway()
 export class BookingGateway
@@ -25,33 +23,23 @@ export class BookingGateway
         @Inject(IBookingServiceProvider) private bookingService: IBookingService,
     ) {}
     @WebSocketServer() server;
-
-
-
-    @SubscribeMessage('bookings')
-    handleBookingEvent(@MessageBody() data: string): string {
-        console.log('test booking = ' + data);
-        return data + 'hello';
-    }
-    
-    
     
     @SubscribeMessage('postBooking')
     async handlePostBookingEvent(
-        @MessageBody() bookingDto: BookingDTO,
+        @MessageBody() newBookingPeriods: BookingDto[],
         @ConnectedSocket() client: Socket,
     ): Promise<void> {
         // Return CommentModel to controller for REST api
         console.log(
             'bookingDTO email: ' +
-            bookingDto.email +
+            newBookingPeriods[0].email +
             ':  bookingDTO date: ' +
-            bookingDto.date +
+            newBookingPeriods[0].date +
             '  timeDTO: ' +
-            bookingDto.time,
+            newBookingPeriods[0].time,
         );
         try {
-            let newBooking: BookingModel = JSON.parse(JSON.stringify(bookingDto));
+            let newBooking: BookingModel[] = JSON.parse(JSON.stringify(newBookingPeriods[0])); // mock
             let newBooking2 = await this.bookingService.addBooking(newBooking);
    //     
             if (newBooking2 == null) {

@@ -4,89 +4,84 @@ import { IBookingService, IBookingServiceProvider } from "../primary-ports/booki
 import { InjectRepository } from '@nestjs/typeorm';
 import { BookingEntity } from '../../infrastructure/data-source/entities/booking.entity';
 import { Repository } from 'typeorm';
-//import { SharedService } from '../services/shared.service';
-//import { ISharedService, ISharedServiceProvider } from "../primary-ports/shared.service.interface";
+import {EnquiryModel} from "../models/enquiry.model";
+import {forkJoin} from "rxjs";
 
 @Injectable()
 export class BookingService implements IBookingService {
-
+    availableTimes: string[];
+    startTime: string = '9:00'; // mock - will fetch from timetable DB table
+    finishTime: string = '17:00'; // mock - will fetch from timetable DB table
+    
     constructor(
-        //@Inject(ISharedServiceProvider) private sharedService: ISharedService,
         @InjectRepository(BookingEntity) private bookingRepository: Repository<BookingEntity>,
     ) {}
 
-    async addBooking(newBooking: BookingModel): Promise<BookingModel> {
-        console.log('booking service: addBooking');
-// NEW...
-        const bookingDB = await this.bookingRepository.findOne({
-            // where: {date: newBooking.date}, // && (time: newBooking.time)},  // NEED to add time check
-            where: {date: newBooking.date, time: newBooking.time}, // && (time: newBooking.time)},  // NEED to add time check
+    
+    
+    
+    async enquireForAvailability(enquiryDuration: EnquiryModel[]): Promise<string[]> { // maybe time value
 
-        });
-        if (!bookingDB) {
-            console.log('TIME SLOT IS AVAILABLE !! Adding Booking');
+        console.log('enquiryDuration.length = ', enquiryDuration.length);
+        const enquiryAvailable: boolean = true;
+        
+        
+     /*   for (let i = this.startTime; i < (this.finishTime - duration); i++) { //tricky
             
-            let createBooking = this.bookingRepository.create();
-            createBooking.date = newBooking.date;
-            createBooking.time = newBooking.time;
-            createBooking.service = newBooking.service;
-            createBooking.email = newBooking.email;
-            createBooking.phone = newBooking.phone;
+            for (let j = 0; j < enquiryDuration.length; j++) {
+                
+            }            const test = await this.bookingRepository.findOne({
+                where: {date: enquiryDuration[i].date, time: newBooking[i].time},
 
+            });
+        */
+
+        if (true) { /* available*/
+            console.log('TIME SLOT IS AVAILABLE !! Adding Booking');
+
+        } else {
+    //console.log('Booking already  found - id:' + bookingDB.date + '  email: ' + bookingDB.email);
+    console.log('DB NOT UPDATED');
+        }
+        return null;  // mock
+    }
+
+    
+    
+    async addBooking(newBooking: BookingModel[]): Promise<BookingModel[]> {
+        console.log('booking service: addBooking');
+// NEW... need to cycle through booking array
+
+        for (let i = 0; i < newBooking.length; i++) {
+
+
+            let createBooking = this.bookingRepository.create();
+            createBooking.date = newBooking[i].date;
+            createBooking.time = newBooking[i].time;
+            createBooking.service = newBooking[i].service;
+            createBooking.email = newBooking[i].email;
+            createBooking.phone = newBooking[i].phone;
+            createBooking.address = newBooking[i].address;
+            createBooking.city = newBooking[i].city;
+            createBooking.postcode = newBooking[i].postcode;
+            createBooking.notes = newBooking[i].notes;
             createBooking = await this.bookingRepository.save(createBooking);
             const addedBooking = JSON.parse(JSON.stringify(createBooking));
             console.log('SERVICE: returns booking: ', addedBooking);
-
-            return addedBooking;
-            //return null;
-        } else {
-            console.log('Booking already  found - id:' + bookingDB.date + '  email: ' + bookingDB.email);
-            console.log('DB NOT UPDATED');
-          
+            
         }
+        
+            return newBooking;  // will this work??
     }
 
-    async getBookingsByDate(date: string): Promise<BookingModel[]> {
+    
+    async getBookingsByDate(date: string): Promise<BookingModel[]> {  // replace by enquiry??
        return null;  // TEMP
     }
 
-    async deleteBooking(bookingToDelete: BookingModel): Promise<void> { // or id??
+    async deleteBooking(bookingToDelete: BookingModel[]): Promise<string> { // success message (error??)
         return null;  // TEMP
 
     }
-
     
-    
-    
-    /* async addClient(client: ClientModel): Promise<ClientModel> {
-         const clientFoundById = await this.clientRepository.findOne({ id: client.id});
-         if (clientFoundById) {
-             return JSON.parse(JSON.stringify(clientFoundById));
-         }
-         const clientFoundByEmail = await this.clientRepository.findOne({ email: client.email});
-         if (clientFoundByEmail) {
-             throw new Error('Email already used');
-         }
-         let newClient = this.clientRepository.create();
-         newClient.email = client.email;
-         newClient = await this.clientRepository.save(client);
-         const newClient = JSON.parse(JSON.stringify(client));
-         return newClient; // maybe
-     }
- 
-     async getClients(): Promise<ClientModel[]> {
-         const clients = await this.clientRepository.find();
-         const allClients: ClientModel[] = JSON.parse(JSON.stringify(clients));
-         return allClients;
-     }
- 
-     async deleteClient(id: string): Promise<void> {
-         await this.clientRepository.delete({ id: id });
-     }
- */
-    /*
-    getNextWeeksBookings(): BookingModel[] {
-        console.log('currentHighscore = ', this.currentHighscore);
-        return this.currentHighscore;
-    } */
 }

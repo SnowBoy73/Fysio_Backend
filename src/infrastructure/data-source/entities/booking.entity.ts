@@ -20,4 +20,16 @@ export class BookingEntity {
     @Column({ unique: false })
     public phone: number;
 
+    @Column({ unique: false })
+    public address: string;
+
+    @Column({ unique: false })
+    public city: string;
+
+    @Column({ unique: false })
+    public postcode: number;
+
+    @Column({ unique: false })
+    public notes: string;
+    
 }
