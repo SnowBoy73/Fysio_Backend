@@ -4,8 +4,8 @@ import { IBookingService, IBookingServiceProvider } from "../primary-ports/booki
 import { InjectRepository } from '@nestjs/typeorm';
 import { BookingEntity } from '../../infrastructure/data-source/entities/booking.entity';
 import { Repository } from 'typeorm';
-import {EnquiryModel} from "../models/enquiry.model";
 import {forkJoin} from "rxjs";
+import {dateEnquiryModel} from "../../api/dtos/date-enquiry.model";
 
 @Injectable()
 export class BookingService implements IBookingService {
@@ -19,13 +19,10 @@ export class BookingService implements IBookingService {
 
     
     
-    
-    async enquireForAvailability(enquiryDuration: EnquiryModel[]): Promise<string[]> { // maybe time value
-
+    // old version of method - to remove
+    async enquireForAvailability(enquiryDuration: dateEnquiryModel[]): Promise<string[]> { // maybe time value
         console.log('enquiryDuration.length = ', enquiryDuration.length);
         const enquiryAvailable: boolean = true;
-        
-        
      /*   for (let i = this.startTime; i < (this.finishTime - duration); i++) { //tricky
             
             for (let j = 0; j < enquiryDuration.length; j++) {
@@ -33,12 +30,9 @@ export class BookingService implements IBookingService {
             }            const test = await this.bookingRepository.findOne({
                 where: {date: enquiryDuration[i].date, time: newBooking[i].time},
 
-            });
-        */
-
+            });  */
         if (true) { /* available*/
             console.log('TIME SLOT IS AVAILABLE !! Adding Booking');
-
         } else {
     //console.log('Booking already  found - id:' + bookingDB.date + '  email: ' + bookingDB.email);
     console.log('DB NOT UPDATED');
@@ -46,15 +40,64 @@ export class BookingService implements IBookingService {
         return null;  // mock
     }
 
+
+
+/*
+    generateDateTimeNowString(): string {
+        const ts = Date.now();
+        const date_ob = new Date(ts);
+        const date = date_ob.getDate();
+        const month = date_ob.getMonth() + 1;
+        const year = date_ob.getFullYear();
+        const hour = date_ob.getHours();
+        const minute = date_ob.getMinutes();
+        const second = date_ob.getSeconds();
+        let mthZero = '';
+        if (month < 10) mthZero = '0';
+        let dateZero = '';
+        if (date < 10) dateZero = '0';
+        let hourZero = '';
+        if (hour < 10) hourZero = '0';
+        let minZero = '';
+        if (minute < 10) minZero = '0';
+        let secZero = '';
+        if (second < 10) secZero = '0';
+        return year + '-' + mthZero + month + '-' + dateZero + date + '@' + hourZero + hour + ':' + minZero + minute + ':' + secZero + second;
+    }
+*/
     
+
+    getAvailableTimesByDate(selectedDateAndDuration: dateEnquiryModel): Promise<string[]> {
+        if (selectedDateAndDuration != null) {
+            const splitDate: string[] = selectedDateAndDuration.date.split(' ');
+            const day = splitDate[0];
+            const month = splitDate[1];
+            const date = splitDate[2];
+            const year = splitDate[3];
+            console.log('day = ' + day );
+            console.log('month = ' + month );
+            console.log('date = ' + date );
+            console.log('year = ' + year );
+            console.log('Booking duration = ' + selectedDateAndDuration.duration + ' minutes');
+
+        } else {
+            console.log('not a valid date selected');
+
+        }
+        return Promise.resolve([]);
+
+    }
+
+
+
+
+
+
     
     async addBooking(newBooking: BookingModel[]): Promise<BookingModel[]> {
         console.log('booking service: addBooking');
 // NEW... need to cycle through booking array
-
         for (let i = 0; i < newBooking.length; i++) {
-
-
             let createBooking = this.bookingRepository.create();
             createBooking.date = newBooking[i].date;
             createBooking.time = newBooking[i].time;
@@ -68,9 +111,7 @@ export class BookingService implements IBookingService {
             createBooking = await this.bookingRepository.save(createBooking);
             const addedBooking = JSON.parse(JSON.stringify(createBooking));
             console.log('SERVICE: returns booking: ', addedBooking);
-            
         }
-        
             return newBooking;  // will this work??
     }
 

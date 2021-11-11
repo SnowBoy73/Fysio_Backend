@@ -13,8 +13,9 @@ import {
     IBookingService,
     IBookingServiceProvider,
 } from '../../core/primary-ports/booking.service.interface';
-import { BookingDto } from '../dtos/bookingDto';
+import { BookingDto } from '../dtos/booking.dto';
 import { BookingModel } from '../../core/models/booking.model';
+import {dateEnquiryDto} from "../dtos/date-enquiry.dto";
 
 @WebSocketGateway()
 export class BookingGateway
@@ -23,7 +24,21 @@ export class BookingGateway
         @Inject(IBookingServiceProvider) private bookingService: IBookingService,
     ) {}
     @WebSocketServer() server;
-    
+
+
+    @SubscribeMessage('postSelectedDate')
+    async handleDateSelectedEvent(
+        @MessageBody() selectedDateAndDuration: dateEnquiryDto,
+        @ConnectedSocket() client: Socket,
+    ): Promise<void> {
+        console.log('selectedDateAndDuration.date = ' +selectedDateAndDuration.date);
+        console.log('selectedDateAndDuration.duration = ' +selectedDateAndDuration.duration);
+
+        let availableTimes = await this.bookingService.getAvailableTimesByDate(selectedDateAndDuration);
+
+    }
+        
+        
     @SubscribeMessage('postBooking')
     async handlePostBookingEvent(
         @MessageBody() newBookingPeriods: BookingDto[],
@@ -125,7 +140,7 @@ export class BookingGateway
 */
     async handleConnection(client: Socket, ...args: any[]): Promise<any> {
         console.log('Client Connect', client.id);
-        client.emit('schedule', this.bookingService.getBookingsByDate(null)); // todays date??
+        client.emit('schedule', this.bookingService.getAvailableTimesByDate(null)); // todays date??
         //this.server.emit('clients', await this.bookingService.getClients());
     }
 
