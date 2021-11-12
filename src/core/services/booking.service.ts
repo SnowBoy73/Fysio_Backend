@@ -19,8 +19,8 @@ export class BookingService implements IBookingService {
 
     
     async getAvailableTimesByDate(selectedDateAndDuration: dateEnquiryModel): Promise<string[]> {
-       
         if (selectedDateAndDuration != null) {
+            console.log('Service: getAvailableTimesByDate');
             const dBSearchDate = this.convertDateToDbFormat(selectedDateAndDuration.date);
             console.log('Booking duration = ' + selectedDateAndDuration.duration + ' minutes');
             
@@ -31,7 +31,7 @@ export class BookingService implements IBookingService {
                // const possibleBookings: BookingEntity[] = await this.bookingRepository.find();
             
             const bookingsOnSelectedDate: BookingEntity[] = await this.getBookingsByDate(dBSearchDate)
-            console.log(bookingsOnSelectedDate);
+            console.log('bookingsOnSelectedDate = ' + bookingsOnSelectedDate);
             
         //    const allClients: ClientModel[] = JSON.parse(JSON.stringify(clients));
          //   return allClients;
@@ -56,26 +56,28 @@ export class BookingService implements IBookingService {
         console.log('year = ' + year );
         const convertedDate = day + ' ' + month + ' ' + date + ' ' + year;
         console.log('convertedDate = ' + convertedDate );
-        return convertedDate
+        return convertedDate;
     }
 
 
-    async getBookingsByDate(date: string): Promise<BookingModel[]> {  // replace by enquiry??
-      return null;  // TEMP
+    async getBookingsByDate(selectedDate: string): Promise<BookingModel[]> {  // replace by enquiry??
+         const bookingsOnSelectedDate: BookingEntity[] = await this.bookingRepository.find({ 
+         where: {date: selectedDate},
+         });
+            console.log('bookingsOnSelectedDate.length = ' + bookingsOnSelectedDate.length );
+        return bookingsOnSelectedDate;
    }
 
 
     async addBooking(newBooking: BookingModel[]): Promise<BookingModel[]> {
         console.log('booking service: addBooking');
         console.log('newBooking length: ' + newBooking.length);
-
+        const bookingAdded: BookingModel[] = [];
 // NEW... need to cycle through booking array
         for (let i = 0; i < newBooking.length; i++) {
             const converted = this.convertDateToDbFormat(newBooking[i].date);
-            
             console.log(' bookingdate: ', newBooking[i].date);
             console.log('converted bookingdate: ', converted);
-
             let createBooking = this.bookingRepository.create();
             createBooking.date = this.convertDateToDbFormat(newBooking[i].date);
             createBooking.time = newBooking[i].time;
@@ -87,10 +89,13 @@ export class BookingService implements IBookingService {
             createBooking.postcode = newBooking[i].postcode;
             createBooking.notes = newBooking[i].notes;
             createBooking = await this.bookingRepository.save(createBooking);
-            const addedBooking = JSON.parse(JSON.stringify(createBooking));
-            console.log('SERVICE: returns booking: ', addedBooking);
+            bookingAdded.push(createBooking);
+            console.log('SERVICE: pushes booking: ', createBooking);
         }
-            return newBooking;  // will this work??
+        console.log('bookingAdded length: ', bookingAdded.length);
+        const addedBooking = JSON.parse(JSON.stringify(bookingAdded));
+            console.log('SERVICE: returns booking: ', addedBooking);
+            return addedBooking;  // will this work??
     }
 
   

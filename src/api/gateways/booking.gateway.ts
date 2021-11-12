@@ -32,6 +32,7 @@ export class BookingGateway
         @MessageBody() selectedDateAndDuration: dateEnquiryDto,
         @ConnectedSocket() client: Socket,
     ): Promise<void> {
+        console.log('GATEWAY: postSelectedDate');
         console.log('selectedDateAndDuration.date = ' +selectedDateAndDuration.date);
         console.log('selectedDateAndDuration.duration = ' +selectedDateAndDuration.duration);
         let selectedDateAndDurationModel: dateEnquiryModel = JSON.parse(JSON.stringify(selectedDateAndDuration)); // mock

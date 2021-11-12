@@ -9,6 +9,8 @@ export interface IBookingService {
 
     convertDateToDbFormat(dateToConvert: string): string;
 
+    getBookingsByDate(selectedDate: string): Promise<BookingModel[]>;
+
     deleteBooking(bookingToDelete: BookingModel[]): Promise<string>; // or id??
 
 }
