@@ -16,6 +16,7 @@ import {
 import { BookingDto } from '../dtos/booking.dto';
 import { BookingModel } from '../../core/models/booking.model';
 import {dateEnquiryDto} from "../dtos/date-enquiry.dto";
+import {dateEnquiryModel} from "../dtos/date-enquiry.model";
 
 @WebSocketGateway()
 export class BookingGateway
@@ -33,8 +34,9 @@ export class BookingGateway
     ): Promise<void> {
         console.log('selectedDateAndDuration.date = ' +selectedDateAndDuration.date);
         console.log('selectedDateAndDuration.duration = ' +selectedDateAndDuration.duration);
+        let selectedDateAndDurationModel: dateEnquiryModel = JSON.parse(JSON.stringify(selectedDateAndDuration)); // mock
 
-        let availableTimes = await this.bookingService.getAvailableTimesByDate(selectedDateAndDuration);
+        let availableTimes = await this.bookingService.getAvailableTimesByDate(selectedDateAndDurationModel);
 
     }
         
@@ -54,7 +56,11 @@ export class BookingGateway
             newBookingPeriods[0].time,
         );
         try {
-            let newBooking: BookingModel[] = JSON.parse(JSON.stringify(newBookingPeriods[0])); // mock
+            let newBooking: BookingModel[] = JSON.parse(JSON.stringify(newBookingPeriods)); // mock
+
+            console.log('newBooking length: ' + newBooking.length);
+            console.log('newBooking notes: ' + newBooking[0].notes);
+
             let newBooking2 = await this.bookingService.addBooking(newBooking);
    //     
             if (newBooking2 == null) {
