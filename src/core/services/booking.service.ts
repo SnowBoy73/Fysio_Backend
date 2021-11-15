@@ -10,8 +10,11 @@ import {dateEnquiryModel} from "../../api/dtos/date-enquiry.model";
 @Injectable()
 export class BookingService implements IBookingService {
     availableTimes: string[];
-    startTime: string = '9:00'; // mock - will fetch from timetable DB table
-    finishTime: string = '17:00'; // mock - will fetch from timetable DB table
+    startTime: string = '8:00'; // mock - will fetch from timetable DB table
+    breakStart: string = '11:00'; // mock - will fetch from timetable DB table
+    breakFinish: string = '12:00'; // mock - will fetch from timetable DB table
+    finishTime: string = '16:00'; // mock - will fetch from timetable DB table
+    bookingSlotDuration: number = 30;  // minutes in a booking slot - get from admin table in DB later
     
     constructor(
         @InjectRepository(BookingEntity) private bookingRepository: Repository<BookingEntity>,
@@ -23,27 +26,115 @@ export class BookingService implements IBookingService {
             console.log('Service: getAvailableTimesByDate');
             const dBSearchDate = this.convertDateToDbFormat(selectedDateAndDuration.date);
             console.log('Booking duration = ' + selectedDateAndDuration.duration + ' minutes');
-            
-            const dbSearchResults: string[] = [];
-            
-            // SELECT id FROM TAG_TABLE WHERE 'aaaaaaaa' LIKE '%' || tag_name || '%';
-//             where: {date: enquiryDuration[i].date, time: newBooking[i].time},
-               // const possibleBookings: BookingEntity[] = await this.bookingRepository.find();
-            
+
+            const dbSearchResults: string[] = [];  // NEEDED??
+// Get dates bookings and convert their times to minutes after midnight
             const bookingsOnSelectedDate: BookingEntity[] = await this.getBookingsByDate(dBSearchDate)
             console.log('bookingsOnSelectedDate = ' + bookingsOnSelectedDate);
+
+            const datesBookingTimesInMinutesAfterMidnight: number[] = [];
+            for (let b = 0; b < bookingsOnSelectedDate.length; b++) {
+                let convertedBookingTime = this.convertTimeToMinutesAfterMidnight(bookingsOnSelectedDate[b].time);
+                datesBookingTimesInMinutesAfterMidnight.push(convertedBookingTime);
+            }
+            console.log('datesBookingTimesInMinutesAfterMidnight = ' + datesBookingTimesInMinutesAfterMidnight);
+
+// Define work periods and convert their time slots to minutes after midnight
+
+            const bookingSlotsNeeded: number = selectedDateAndDuration.duration / this.bookingSlotDuration;  // Number of booking slots needed for booking
+            console.log('bookingSlotsNeeded = ' + bookingSlotsNeeded);
+
+            //const 
+            let startTimeAsMinutesAfterMidnight: number = this.convertTimeToMinutesAfterMidnight(this.startTime);
+            let breakStartAsMinutesAfterMidnight: number = this.convertTimeToMinutesAfterMidnight(this.breakStart);
+            let breakFinishAsMinutesAfterMidnight: number = this.convertTimeToMinutesAfterMidnight(this.breakFinish);
+            let finishTimeAsMinutesAfterMidnight: number = this.convertTimeToMinutesAfterMidnight(this.finishTime);
+            console.log('startTimeAsMinutesAfterMidnight = ' + startTimeAsMinutesAfterMidnight);
+            console.log('breakStartAsMinutesAfterMidnight = ' + breakStartAsMinutesAfterMidnight);
+            console.log('breakFinishAsMinutesAfterMidnight = ' + breakFinishAsMinutesAfterMidnight);
+            console.log('finishTimeAsMinutesAfterMidnight = ' + finishTimeAsMinutesAfterMidnight);
+
+            console.log('Times for work period 1');
+            const firstWorkPeriodAvailableSlots: string[] = this.findAvailableSlotInWorkPeriod(startTimeAsMinutesAfterMidnight, breakStartAsMinutesAfterMidnight, bookingSlotsNeeded, datesBookingTimesInMinutesAfterMidnight);
+
+            console.log('Times for work period 2');
             
-        //    const allClients: ClientModel[] = JSON.parse(JSON.stringify(clients));
-         //   return allClients;
-            
+            const secondWorkPeriodAvailableSlots: string[] = this.findAvailableSlotInWorkPeriod(breakFinishAsMinutesAfterMidnight, finishTimeAsMinutesAfterMidnight,bookingSlotsNeeded, datesBookingTimesInMinutesAfterMidnight);
+
+            console.log('Available booking Times for work period 1 = ' + firstWorkPeriodAvailableSlots);
+            console.log('Available booking Times for work period 2 = ' + secondWorkPeriodAvailableSlots);
+
+            let allAvailableBookingTimesOnASelectedDate: string[] = firstWorkPeriodAvailableSlots.concat(secondWorkPeriodAvailableSlots);
+            console.log('allAvailableBookingTimesOnASelectedDate = ' + allAvailableBookingTimesOnASelectedDate);
+            return allAvailableBookingTimesOnASelectedDate;
+          
         } else {
             console.log('not a valid date selected');
-
         }
-        return Promise.resolve([]);
+    }
+
+    
+    
+    findAvailableSlotInWorkPeriod(startTime: number, finishTime: number, bookingSlotsNeeded: number, datesBookingTimesInMinutesAfterMidnight: number[]): string[] {
+        console.log('startTime: ' + startTime + 'finishTime: ' + finishTime + 'bookingSlotsNeeded: ' + bookingSlotsNeeded);
+
+        const availableBookingTimes: string[] = [];
+        let timeToCheck: number;
+        for (let i = startTime; i <= finishTime - (bookingSlotsNeeded * this.bookingSlotDuration); i += this.bookingSlotDuration) {
+            console.log(i);
+            let bookingPossibleAtTimeI: boolean = true;
+
+            for (let j = 0; j < bookingSlotsNeeded; j++) { // j = numbers of slots needed
+                timeToCheck = i + (j * this.bookingSlotDuration);
+                console.log('timeToCheck: ' + timeToCheck);
+                for (let k = 0; k < datesBookingTimesInMinutesAfterMidnight.length; k++) {  // k looks through all booking on that day
+                    // console.log('timeToCheck  ' + timeToCheck + ' =? ' + datesBookingTimesInMinutesAfterMidnight[k] + '  (datesBookingTimesInMinutesAfterMidnight)');
+                    if (timeToCheck == datesBookingTimesInMinutesAfterMidnight[k]){
+                        // console.log(' = TRUE');
+                        bookingPossibleAtTimeI = false;
+                        break;
+                    } else {
+                        // console.log(' = FALSE');
+                    }
+                   
+                }
+            }
+            console.log('Possible booking of ' + (bookingSlotsNeeded * this.bookingSlotDuration) + ' minutes at ' + i + ' = ' + bookingPossibleAtTimeI);
+            if (bookingPossibleAtTimeI) {
+                let bookableTimeAsString: string = this.convertMinutesAfterMidnightToTime(i);
+                availableBookingTimes.push(bookableTimeAsString);
+                console.log('Added possible booking time at ' + bookableTimeAsString);
+            }
+        }
+        //return null; //MOCK
+        return availableBookingTimes;
     }
 
 
+    convertMinutesAfterMidnightToTime(timeInMinutes: number): string {
+        const bookableTimeHour: string = Math.trunc((timeInMinutes / 60)).toString();
+        let bookableTimeMinutes: string = (timeInMinutes % 60).toString();
+        if (bookableTimeMinutes === '0') {
+             bookableTimeMinutes = '00';
+        }
+        const bookableTimeAsString: string = bookableTimeHour + ':' + bookableTimeMinutes;
+        console.log('bookableTimeAsString =  ' + bookableTimeAsString);
+        return bookableTimeAsString;  
+    }
+
+    
+        convertTimeToMinutesAfterMidnight(time: string): number {
+        let timeAsNumberArray: number[] = [];
+        const splitTimeString = time.split(':');
+        timeAsNumberArray[0] = parseInt(splitTimeString[0]);
+        timeAsNumberArray[1] = parseInt(splitTimeString[1]);
+        console.log('bookingTime hour = ' + timeAsNumberArray[0] + ' minute = ' + timeAsNumberArray[1]);
+        let timeInMinutesAfterMidnight: number = (timeAsNumberArray[0] * 60) + (timeAsNumberArray[1]);
+        console.log('timeInMinutesAfterMidnight = ' + timeInMinutesAfterMidnight);
+        return timeInMinutesAfterMidnight;
+    }
+    
+    
     convertDateToDbFormat(dateToConvert: string): string {
         const splitDate: string[] = dateToConvert.split(' ');
         const day = splitDate[0];
