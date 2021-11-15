@@ -39,7 +39,7 @@ export class BookingGateway
 
         let availableTimes = await this.bookingService.getAvailableTimesByDate(selectedDateAndDurationModel);
         console.log('GATEWAY: availableTimes', availableTimes);
-        this.server.emit('availableTimes', availableTimes);  // NEEDS FROM END
+        this.server.emit('availableTimes', availableTimes);
     }
         
         

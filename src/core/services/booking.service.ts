@@ -4,7 +4,7 @@ import { IBookingService, IBookingServiceProvider } from "../primary-ports/booki
 import { InjectRepository } from '@nestjs/typeorm';
 import { BookingEntity } from '../../infrastructure/data-source/entities/booking.entity';
 import { Repository } from 'typeorm';
-import {async, forkJoin} from "rxjs";
+// import {async, forkJoin} from "rxjs";
 import {dateEnquiryModel} from "../../api/dtos/date-enquiry.model";
 
 @Injectable()
@@ -13,7 +13,7 @@ export class BookingService implements IBookingService {
     startTime: string = '8:00'; // mock - will fetch from timetable DB table
     breakStart: string = '11:00'; // mock - will fetch from timetable DB table
     breakFinish: string = '12:00'; // mock - will fetch from timetable DB table
-    finishTime: string = '16:00'; // mock - will fetch from timetable DB table
+    finishTime: string = '15:00'; // mock - will fetch from timetable DB table
     bookingSlotDuration: number = 30;  // minutes in a booking slot - get from admin table in DB later
     
     constructor(
@@ -26,25 +26,19 @@ export class BookingService implements IBookingService {
             console.log('Service: getAvailableTimesByDate');
             const dBSearchDate = this.convertDateToDbFormat(selectedDateAndDuration.date);
             console.log('Booking duration = ' + selectedDateAndDuration.duration + ' minutes');
-
-            const dbSearchResults: string[] = [];  // NEEDED??
 // Get dates bookings and convert their times to minutes after midnight
             const bookingsOnSelectedDate: BookingEntity[] = await this.getBookingsByDate(dBSearchDate)
             console.log('bookingsOnSelectedDate = ' + bookingsOnSelectedDate);
-
             const datesBookingTimesInMinutesAfterMidnight: number[] = [];
             for (let b = 0; b < bookingsOnSelectedDate.length; b++) {
                 let convertedBookingTime = this.convertTimeToMinutesAfterMidnight(bookingsOnSelectedDate[b].time);
                 datesBookingTimesInMinutesAfterMidnight.push(convertedBookingTime);
             }
             console.log('datesBookingTimesInMinutesAfterMidnight = ' + datesBookingTimesInMinutesAfterMidnight);
-
 // Define work periods and convert their time slots to minutes after midnight
-
             const bookingSlotsNeeded: number = selectedDateAndDuration.duration / this.bookingSlotDuration;  // Number of booking slots needed for booking
             console.log('bookingSlotsNeeded = ' + bookingSlotsNeeded);
-
-            //const 
+            //
             let startTimeAsMinutesAfterMidnight: number = this.convertTimeToMinutesAfterMidnight(this.startTime);
             let breakStartAsMinutesAfterMidnight: number = this.convertTimeToMinutesAfterMidnight(this.breakStart);
             let breakFinishAsMinutesAfterMidnight: number = this.convertTimeToMinutesAfterMidnight(this.breakFinish);
@@ -53,50 +47,37 @@ export class BookingService implements IBookingService {
             console.log('breakStartAsMinutesAfterMidnight = ' + breakStartAsMinutesAfterMidnight);
             console.log('breakFinishAsMinutesAfterMidnight = ' + breakFinishAsMinutesAfterMidnight);
             console.log('finishTimeAsMinutesAfterMidnight = ' + finishTimeAsMinutesAfterMidnight);
-
             console.log('Times for work period 1');
             const firstWorkPeriodAvailableSlots: string[] = this.findAvailableSlotInWorkPeriod(startTimeAsMinutesAfterMidnight, breakStartAsMinutesAfterMidnight, bookingSlotsNeeded, datesBookingTimesInMinutesAfterMidnight);
-
             console.log('Times for work period 2');
-            
             const secondWorkPeriodAvailableSlots: string[] = this.findAvailableSlotInWorkPeriod(breakFinishAsMinutesAfterMidnight, finishTimeAsMinutesAfterMidnight,bookingSlotsNeeded, datesBookingTimesInMinutesAfterMidnight);
-
             console.log('Available booking Times for work period 1 = ' + firstWorkPeriodAvailableSlots);
             console.log('Available booking Times for work period 2 = ' + secondWorkPeriodAvailableSlots);
-
             let allAvailableBookingTimesOnASelectedDate: string[] = firstWorkPeriodAvailableSlots.concat(secondWorkPeriodAvailableSlots);
             console.log('allAvailableBookingTimesOnASelectedDate = ' + allAvailableBookingTimesOnASelectedDate);
             return allAvailableBookingTimesOnASelectedDate;
-          
         } else {
             console.log('not a valid date selected');
         }
     }
 
     
-    
     findAvailableSlotInWorkPeriod(startTime: number, finishTime: number, bookingSlotsNeeded: number, datesBookingTimesInMinutesAfterMidnight: number[]): string[] {
         console.log('startTime: ' + startTime + 'finishTime: ' + finishTime + 'bookingSlotsNeeded: ' + bookingSlotsNeeded);
-
         const availableBookingTimes: string[] = [];
         let timeToCheck: number;
         for (let i = startTime; i <= finishTime - (bookingSlotsNeeded * this.bookingSlotDuration); i += this.bookingSlotDuration) {
             console.log(i);
             let bookingPossibleAtTimeI: boolean = true;
-
             for (let j = 0; j < bookingSlotsNeeded; j++) { // j = numbers of slots needed
                 timeToCheck = i + (j * this.bookingSlotDuration);
                 console.log('timeToCheck: ' + timeToCheck);
                 for (let k = 0; k < datesBookingTimesInMinutesAfterMidnight.length; k++) {  // k looks through all booking on that day
                     // console.log('timeToCheck  ' + timeToCheck + ' =? ' + datesBookingTimesInMinutesAfterMidnight[k] + '  (datesBookingTimesInMinutesAfterMidnight)');
                     if (timeToCheck == datesBookingTimesInMinutesAfterMidnight[k]){
-                        // console.log(' = TRUE');
                         bookingPossibleAtTimeI = false;
                         break;
-                    } else {
-                        // console.log(' = FALSE');
                     }
-                   
                 }
             }
             console.log('Possible booking of ' + (bookingSlotsNeeded * this.bookingSlotDuration) + ' minutes at ' + i + ' = ' + bookingPossibleAtTimeI);
@@ -106,7 +87,6 @@ export class BookingService implements IBookingService {
                 console.log('Added possible booking time at ' + bookableTimeAsString);
             }
         }
-        //return null; //MOCK
         return availableBookingTimes;
     }
 
@@ -114,16 +94,14 @@ export class BookingService implements IBookingService {
     convertMinutesAfterMidnightToTime(timeInMinutes: number): string {
         const bookableTimeHour: string = Math.trunc((timeInMinutes / 60)).toString();
         let bookableTimeMinutes: string = (timeInMinutes % 60).toString();
-        if (bookableTimeMinutes === '0') {
-             bookableTimeMinutes = '00';
-        }
+        if (bookableTimeMinutes === '0') bookableTimeMinutes = '00';  // returns '00' minutes rather than '0'. Eg 9:00
         const bookableTimeAsString: string = bookableTimeHour + ':' + bookableTimeMinutes;
         console.log('bookableTimeAsString =  ' + bookableTimeAsString);
         return bookableTimeAsString;  
     }
 
     
-        convertTimeToMinutesAfterMidnight(time: string): number {
+    convertTimeToMinutesAfterMidnight(time: string): number {
         let timeAsNumberArray: number[] = [];
         const splitTimeString = time.split(':');
         timeAsNumberArray[0] = parseInt(splitTimeString[0]);
@@ -152,10 +130,10 @@ export class BookingService implements IBookingService {
 
 
     async getBookingsByDate(selectedDate: string): Promise<BookingModel[]> {  // replace by enquiry??
-         const bookingsOnSelectedDate: BookingEntity[] = await this.bookingRepository.find({ 
-         where: {date: selectedDate},
-         });
-            console.log('bookingsOnSelectedDate.length = ' + bookingsOnSelectedDate.length );
+        const bookingsOnSelectedDate: BookingEntity[] = await this.bookingRepository.find({
+            where: {date: selectedDate},
+        });
+        console.log('bookingsOnSelectedDate.length = ' + bookingsOnSelectedDate.length );
         return bookingsOnSelectedDate;
    }
 
@@ -164,7 +142,7 @@ export class BookingService implements IBookingService {
         console.log('booking service: addBooking');
         console.log('newBooking length: ' + newBooking.length);
         const bookingAdded: BookingModel[] = [];
-// NEW... need to cycle through booking array
+//  Cycle through booking array
         for (let i = 0; i < newBooking.length; i++) {
             const converted = this.convertDateToDbFormat(newBooking[i].date);
             console.log(' bookingdate: ', newBooking[i].date);
@@ -192,35 +170,6 @@ export class BookingService implements IBookingService {
   
     async deleteBooking(bookingToDelete: BookingModel[]): Promise<string> { // success message (error??)
         return null;  // TEMP
-
     }
 
-
-
-
-
-    // old version of method - to remove
-    /* async enquireForAvailability(enquiryDuration: dateEnquiryModel[]): Promise<string[]> { // maybe time value
-         console.log('enquiryDuration.length = ', enquiryDuration.length);
-         const enquiryAvailable: boolean = true;
-         /*   for (let i = this.startTime; i < (this.finishTime - duration); i++) { //tricky
-                
-                for (let j = 0; j < enquiryDuration.length; j++) {
-                    
-                }            const test = await this.bookingRepository.findOne({
-                    where: {date: enquiryDuration[i].date, time: newBooking[i].time},
-    
-                });  
-         if (true) { // available
-             console.log('TIME SLOT IS AVAILABLE !! Adding Booking');
-         } else {
-             //console.log('Booking already  found - id:' + bookingDB.date + '  email: ' + bookingDB.email);
-             console.log('DB NOT UPDATED');
-         }
-         return null;  // mock
-     }
- */
-
-
-    
 }
