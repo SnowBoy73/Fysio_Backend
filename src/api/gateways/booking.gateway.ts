@@ -45,25 +45,34 @@ export class BookingGateway
         
     @SubscribeMessage('postBooking')
     async handlePostBookingEvent(
-        @MessageBody() newBookingPeriods: BookingDto[],
+        @MessageBody() newBookingDto: BookingDto,
         @ConnectedSocket() client: Socket,
     ): Promise<void> {
         // Return CommentModel to controller for REST api
-        console.log(
-            'bookingDTO email: ' +
-            newBookingPeriods[0].email +
-            ':  bookingDTO date: ' +
-            newBookingPeriods[0].date +
-            '  timeDTO: ' +
-            newBookingPeriods[0].time,
-        );
+        console.log('newBookingDTO date: ' + newBookingDto.date);
+        console.log('newBookingDTO time: ' + newBookingDto.time);
+        console.log('newBookingDTO service: ' + newBookingDto.service);
+        console.log('newBookingDTO email: ' + newBookingDto.email);
+        console.log('newBookingDTO phone: ' + newBookingDto.phone);
+        console.log('newBookingDTO address: ' + newBookingDto.address);
+        console.log('newBookingDTO city: ' + newBookingDto.city);
+        console.log('newBookingDTO postcode: ' + newBookingDto.postcode);
+        console.log('newBookingDTO notes: ' + newBookingDto.notes);
+        console.log('newBookingDTO duration: ' + newBookingDto.duration);
+
         try {
-            let newBooking: BookingModel[] = JSON.parse(JSON.stringify(newBookingPeriods)); // mock
-
-            console.log('newBooking length: ' + newBooking.length);
-            console.log('newBooking notes: ' + newBooking[0].notes);
-
-            let newBooking2 = await this.bookingService.addBooking(newBooking);
+            let newBooking: BookingModel = JSON.parse(JSON.stringify(newBookingDto)); // mock
+            console.log('newBooking date: ' + newBooking.date);
+            console.log('newBooking time: ' + newBooking.time);
+            console.log('newBooking service: ' + newBooking.service);
+            console.log('newBooking email: ' + newBooking.email);
+            console.log('newBooking phone: ' + newBooking.phone);
+            console.log('newBooking address: ' + newBooking.address);
+            console.log('newBooking city: ' + newBooking.city);
+            console.log('newBooking postcode: ' + newBooking.postcode);
+            console.log('newBooking notes: ' + newBooking.notes);
+            console.log(' duration: ' + newBookingDto.duration);
+            let newBooking2 = await this.bookingService.addBooking(newBooking, newBookingDto.duration);
    //     
             if (newBooking2 == null) {
                 console.log('GATEWAY: booking is null: NO new booking emitted');

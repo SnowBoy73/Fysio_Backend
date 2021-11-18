@@ -13,7 +13,7 @@ export class BookingService implements IBookingService {
     startTime: string = '8:00'; // mock - will fetch from timetable DB table
     breakStart: string = '11:00'; // mock - will fetch from timetable DB table
     breakFinish: string = '12:00'; // mock - will fetch from timetable DB table
-    finishTime: string = '15:00'; // mock - will fetch from timetable DB table
+    finishTime: string = '18:00'; // mock - will fetch from timetable DB table
     bookingSlotDuration: number = 30;  // minutes in a booking slot - get from admin table in DB later
     
     constructor(
@@ -138,31 +138,36 @@ export class BookingService implements IBookingService {
    }
 
 
-    async addBooking(newBooking: BookingModel[]): Promise<BookingModel[]> {
+    async addBooking(newBooking: BookingModel, duration: number): Promise<BookingModel[]> {
         console.log('booking service: addBooking');
-        console.log('newBooking length: ' + newBooking.length);
-        const bookingAdded: BookingModel[] = [];
+        const numberOfSlotsForBooking: number = duration / this.bookingSlotDuration;
+        console.log('numberOfSlotsForBooking: ' + numberOfSlotsForBooking);
+        const createdBooking: BookingModel[] = [];  // NEEDED?
+        const convertedDate: string = this.convertDateToDbFormat(newBooking.date);
+        console.log('convertedDate: ', convertedDate);
+        const bookingStartTimeInMinutesAfterMidnight: number = this.convertTimeToMinutesAfterMidnight(newBooking.time);
 //  Cycle through booking array
-        for (let i = 0; i < newBooking.length; i++) {
-            const converted = this.convertDateToDbFormat(newBooking[i].date);
-            console.log(' bookingdate: ', newBooking[i].date);
-            console.log('converted bookingdate: ', converted);
+        for (let i = 0; i < numberOfSlotsForBooking; i++) {
+            let bookingTimeInMinutesAfterMidnight: number = bookingStartTimeInMinutesAfterMidnight + (i * this.bookingSlotDuration);
+            console.log('bookingTimeInMinutesAfterMidnight ' + i + ' = ' + bookingTimeInMinutesAfterMidnight);
+            let bookingTime: string = this.convertMinutesAfterMidnightToTime(bookingTimeInMinutesAfterMidnight);
+            console.log(' bookingTime ' + i + ' = ' + bookingTime);
+
             let createBooking = this.bookingRepository.create();
-            createBooking.date = this.convertDateToDbFormat(newBooking[i].date);
-            createBooking.time = newBooking[i].time;
-            createBooking.service = newBooking[i].service;
-            createBooking.email = newBooking[i].email;
-            createBooking.phone = newBooking[i].phone;
-            createBooking.address = newBooking[i].address;
-            createBooking.city = newBooking[i].city;
-            createBooking.postcode = newBooking[i].postcode;
-            createBooking.notes = newBooking[i].notes;
+            createBooking.date = convertedDate;
+            createBooking.time = bookingTime;
+            createBooking.service = newBooking.service;
+            createBooking.email = newBooking.email;
+            createBooking.phone = newBooking.phone;
+            createBooking.address = newBooking.address;
+            createBooking.city = newBooking.city;
+            createBooking.postcode = newBooking.postcode;
+            createBooking.notes = newBooking.notes;
             createBooking = await this.bookingRepository.save(createBooking);
-            bookingAdded.push(createBooking);
+            createdBooking.push(createBooking);
             console.log('SERVICE: pushes booking: ', createBooking);
         }
-        console.log('bookingAdded length: ', bookingAdded.length);
-        const addedBooking = JSON.parse(JSON.stringify(bookingAdded));
+        const addedBooking = JSON.parse(JSON.stringify(createdBooking));
             console.log('SERVICE: returns booking: ', addedBooking);
             return addedBooking;  // will this work??
     }
