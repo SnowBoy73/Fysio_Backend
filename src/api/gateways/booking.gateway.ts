@@ -35,11 +35,15 @@ export class BookingGateway
         console.log('GATEWAY: postSelectedDate');
         console.log('selectedDateAndDuration.date = ' +selectedDateAndDuration.date);
         console.log('selectedDateAndDuration.duration = ' +selectedDateAndDuration.duration);
-        let selectedDateAndDurationModel: dateEnquiryModel = JSON.parse(JSON.stringify(selectedDateAndDuration)); // mock
-
+        try {
+            let selectedDateAndDurationModel: dateEnquiryModel = JSON.parse(JSON.stringify(selectedDateAndDuration)); // mock
         let availableTimes = await this.bookingService.getAvailableTimesByDate(selectedDateAndDurationModel);
         console.log('GATEWAY: availableTimes', availableTimes);
         this.server.emit('availableTimes', availableTimes);
+        } catch (e) {
+            console.log('GATEWAY ERROR: caught in postSelectedDate');
+            //client._error(e.message);  // PROBLEM HERE
+        }
     }
         
         
@@ -59,7 +63,6 @@ export class BookingGateway
         console.log('newBookingDTO postcode: ' + newBookingDto.postcode);
         console.log('newBookingDTO notes: ' + newBookingDto.notes);
         console.log('newBookingDTO duration: ' + newBookingDto.duration);
-
         try {
             let newBooking: BookingModel = JSON.parse(JSON.stringify(newBookingDto)); // mock
             console.log('newBooking date: ' + newBooking.date);
@@ -73,17 +76,15 @@ export class BookingGateway
             console.log('newBooking notes: ' + newBooking.notes);
             console.log(' duration: ' + newBookingDto.duration);
             let newBooking2 = await this.bookingService.addBooking(newBooking, newBookingDto.duration);
-   //     
             if (newBooking2 == null) {
                 console.log('GATEWAY: booking is null: NO new booking emitted');
-
-
             } else {
                 console.log('GATEWAY: emits booking: ', newBooking2);
 
                 this.server.emit('newBooking2', newBooking2);
             }
         } catch (e) {
+            console.log('GATEWAY ERROR: caught in postBooking');
             //client._error(e.message);  // PROBLEM HERE
         }
     }
