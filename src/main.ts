@@ -11,7 +11,7 @@ async function bootstrap() {
 
   const configService: ConfigService = app.get(ConfigService);
   //await app.listen(configService.get('PORT') || 3004);  //  from best-playz
-  await app.listen(process.env.PORT || 3004) /*, function(){
+  await app.listen(process.env.PORT || 8080) /*, function(){
     console.log("Express server listening on port %d in %s mode", this.address().port); 
   }); */  // https://shivamv12.medium.com/deploy-nestjs-on-heroku-in-5-simple-steps-cc7625ea6167
 }
