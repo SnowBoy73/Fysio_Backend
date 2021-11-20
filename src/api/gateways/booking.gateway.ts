@@ -59,7 +59,6 @@ export class BookingGateway
         console.log('newBookingDTO postcode: ' + newBookingDto.postcode);
         console.log('newBookingDTO notes: ' + newBookingDto.notes);
         console.log('newBookingDTO duration: ' + newBookingDto.duration);
-
         try {
             let newBooking: BookingModel = JSON.parse(JSON.stringify(newBookingDto)); // mock
             console.log('newBooking date: ' + newBooking.date);
@@ -72,18 +71,15 @@ export class BookingGateway
             console.log('newBooking postcode: ' + newBooking.postcode);
             console.log('newBooking notes: ' + newBooking.notes);
             console.log(' duration: ' + newBookingDto.duration);
-            let newBooking2 = await this.bookingService.addBooking(newBooking, newBookingDto.duration);
-   //     
-            if (newBooking2 == null) {
+            let addedBookings = await this.bookingService.addBooking(newBooking, newBookingDto.duration);
+            if (addedBookings == null) {
                 console.log('GATEWAY: booking is null: NO new booking emitted');
-
-
             } else {
-                console.log('GATEWAY: emits booking: ', newBooking2);
-
-                this.server.emit('newBooking2', newBooking2);
+                console.log('GATEWAY: emits booking: ', addedBookings);
+                this.server.emit('newBooking', addedBookings);
             }
         } catch (e) {
+            console.log('GATEWAY: emits error:');
             //client._error(e.message);  // PROBLEM HERE
         }
     }

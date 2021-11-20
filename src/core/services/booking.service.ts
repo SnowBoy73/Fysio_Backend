@@ -142,7 +142,7 @@ export class BookingService implements IBookingService {
         console.log('booking service: addBooking');
         const numberOfSlotsForBooking: number = duration / this.bookingSlotDuration;
         console.log('numberOfSlotsForBooking: ' + numberOfSlotsForBooking);
-        const createdBooking: BookingModel[] = [];  // NEEDED?
+        const createdBookings: BookingModel[] = [];  // NEEDED?
         const convertedDate: string = this.convertDateToDbFormat(newBooking.date);
         console.log('convertedDate: ', convertedDate);
         const bookingStartTimeInMinutesAfterMidnight: number = this.convertTimeToMinutesAfterMidnight(newBooking.time);
@@ -152,7 +152,6 @@ export class BookingService implements IBookingService {
             console.log('bookingTimeInMinutesAfterMidnight ' + i + ' = ' + bookingTimeInMinutesAfterMidnight);
             let bookingTime: string = this.convertMinutesAfterMidnightToTime(bookingTimeInMinutesAfterMidnight);
             console.log(' bookingTime ' + i + ' = ' + bookingTime);
-
             let createBooking = this.bookingRepository.create();
             createBooking.date = convertedDate;
             createBooking.time = bookingTime;
@@ -164,12 +163,13 @@ export class BookingService implements IBookingService {
             createBooking.postcode = newBooking.postcode;
             createBooking.notes = newBooking.notes;
             createBooking = await this.bookingRepository.save(createBooking);
-            createdBooking.push(createBooking);
+            createdBookings.push(createBooking);
             console.log('SERVICE: pushes booking: ', createBooking);
         }
-        const addedBooking = JSON.parse(JSON.stringify(createdBooking));
-            console.log('SERVICE: returns booking: ', addedBooking);
-            return addedBooking;  // will this work??
+        
+        //const addedBooking = JSON.parse(JSON.stringify(createdBookings));
+            console.log('SERVICE: returns booking: ', createdBookings);
+            return createdBookings;  // will this work??
     }
 
   
