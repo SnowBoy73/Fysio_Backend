@@ -91,44 +91,6 @@ export class BookingService implements IBookingService {
     }
 
 
-    convertMinutesAfterMidnightToTime(timeInMinutes: number): string {
-        const bookableTimeHour: string = Math.trunc((timeInMinutes / 60)).toString();
-        let bookableTimeMinutes: string = (timeInMinutes % 60).toString();
-        if (bookableTimeMinutes === '0') bookableTimeMinutes = '00';  // returns '00' minutes rather than '0'. Eg 9:00
-        const bookableTimeAsString: string = bookableTimeHour + ':' + bookableTimeMinutes;
-        console.log('bookableTimeAsString =  ' + bookableTimeAsString);
-        return bookableTimeAsString;  
-    }
-
-    
-    convertTimeToMinutesAfterMidnight(time: string): number {
-        let timeAsNumberArray: number[] = [];
-        const splitTimeString = time.split(':');
-        timeAsNumberArray[0] = parseInt(splitTimeString[0]);
-        timeAsNumberArray[1] = parseInt(splitTimeString[1]);
-        console.log('bookingTime hour = ' + timeAsNumberArray[0] + ' minute = ' + timeAsNumberArray[1]);
-        let timeInMinutesAfterMidnight: number = (timeAsNumberArray[0] * 60) + (timeAsNumberArray[1]);
-        console.log('timeInMinutesAfterMidnight = ' + timeInMinutesAfterMidnight);
-        return timeInMinutesAfterMidnight;
-    }
-    
-    
-    convertDateToDbFormat(dateToConvert: string): string {
-        const splitDate: string[] = dateToConvert.split(' ');
-        const day = splitDate[0];
-        const month = splitDate[1];
-        const date = splitDate[2];
-        const year = splitDate[3];
-        console.log('day = ' + day );
-        console.log('month = ' + month );
-        console.log('date = ' + date );
-        console.log('year = ' + year );
-        const convertedDate = day + ' ' + month + ' ' + date + ' ' + year;
-        console.log('convertedDate = ' + convertedDate );
-        return convertedDate;
-    }
-
-
     async getBookingsByDate(selectedDate: string): Promise<BookingModel[]> {  // replace by enquiry??
         const bookingsOnSelectedDate: BookingEntity[] = await this.bookingRepository.find({
             where: {date: selectedDate},
@@ -173,8 +135,77 @@ export class BookingService implements IBookingService {
     }
 
   
-    async deleteBooking(bookingToDelete: BookingModel[]): Promise<string> { // success message (error??)
+    async deleteBooking(bookingToDelete: BookingModel): Promise<BookingModel[]> {
+       // let bookingToCheckForDelete: BookingModel[] = this.checkBookingToDelete(bookingToDelete);
+        
         return null;  // TEMP
     }
+
+    async checkBookingToDelete(bookingToDelete: BookingModel): Promise<BookingModel[]> {
+        let bookingToDeleteDate: string =  this.convertDateToDbFormat(bookingToDelete.date);
+       // let bookingToDeleteTime: string =  this.convertDateToDbFormat(bookingToDelete.date);
+
+        // const timeToTest = await this.bookingRepository.findOne({where: {date: bookingToDeleteDate, time: bookingToDelete.time},
+
+         let bookingsOnDate: BookingModel[] = await this.getBookingsByDate(bookingToDeleteDate);
+        for (let i = 0; i < bookingsOnDate.length; i++) {
+            
+        }
+
+        
+            /*   for (let i = this.startTime; i < (this.finishTime - duration); i++) { //tricky
+                   
+                   for (let j = 0; j < enquiryDuration.length; j++) {
+                       
+                   }            const test = await this.bookingRepository.findOne({
+                       where: {date: enquiryDuration[i].date, time: newBooking[i].time},
+       
+                   });  
+            if (true) { // available
+                console.log('TIME SLOT IS AVAILABLE !! Adding Booking');
+            } else {
+                //console.log('Booking already  found - id:' + bookingDB.date + '  email: ' + bookingDB.email);
+                console.log('DB NOT UPDATED');
+            } */
+         return null;  // mock
+     }
+   
+    convertMinutesAfterMidnightToTime(timeInMinutes: number): string {
+        const bookableTimeHour: string = Math.trunc((timeInMinutes / 60)).toString();
+        let bookableTimeMinutes: string = (timeInMinutes % 60).toString();
+        if (bookableTimeMinutes === '0') bookableTimeMinutes = '00';  // returns '00' minutes rather than '0'. Eg 9:00
+        const bookableTimeAsString: string = bookableTimeHour + ':' + bookableTimeMinutes;
+        console.log('bookableTimeAsString =  ' + bookableTimeAsString);
+        return bookableTimeAsString;
+    }
+
+    
+    convertTimeToMinutesAfterMidnight(time: string): number {
+        let timeAsNumberArray: number[] = [];
+        const splitTimeString = time.split(':');
+        timeAsNumberArray[0] = parseInt(splitTimeString[0]);
+        timeAsNumberArray[1] = parseInt(splitTimeString[1]);
+        console.log('bookingTime hour = ' + timeAsNumberArray[0] + ' minute = ' + timeAsNumberArray[1]);
+        let timeInMinutesAfterMidnight: number = (timeAsNumberArray[0] * 60) + (timeAsNumberArray[1]);
+        console.log('timeInMinutesAfterMidnight = ' + timeInMinutesAfterMidnight);
+        return timeInMinutesAfterMidnight;
+    }
+    
+    
+    convertDateToDbFormat(dateToConvert: string): string {
+        const splitDate: string[] = dateToConvert.split(' ');
+        const day = splitDate[0];
+        const month = splitDate[1];
+        const date = splitDate[2];
+        const year = splitDate[3];
+        console.log('day = ' + day );
+        console.log('month = ' + month );
+        console.log('date = ' + date );
+        console.log('year = ' + year );
+        const convertedDate = day + ' ' + month + ' ' + date + ' ' + year;
+        console.log('convertedDate = ' + convertedDate );
+        return convertedDate;
+    }
+    
 
 }
