@@ -96,6 +96,7 @@ export class BookingService implements IBookingService {
             where: {date: selectedDate},
         });
         console.log('bookingsOnSelectedDate.length = ' + bookingsOnSelectedDate.length );
+        //  const updatedstock: Stock = JSON.parse(JSON.stringify(stockDB));  // NEED TO PARSE???
         return bookingsOnSelectedDate;
    }
 
@@ -129,60 +130,60 @@ export class BookingService implements IBookingService {
             createdBookings.push(createBooking);
             console.log('SERVICE: pushes booking: ', createBooking);
         }
-        
-        //const addedBooking = JSON.parse(JSON.stringify(createdBookings));
-            console.log('SERVICE: returns booking: ', createdBookings);
-            return createdBookings;  // will this work??
+        console.log('SERVICE: returns booking: ', createdBookings);
+        //       const updatedstock: Stock = JSON.parse(JSON.stringify(stockDB));  // NEED TO PARSE???
+        return createdBookings;  // will this work??
     }
 
   
     async deleteBooking(bookingToDelete: BookingModel): Promise<BookingModel[]> {
-       // let bookingToCheckForDelete: BookingModel[] = this.checkBookingToDelete(bookingToDelete);
-        
-        return null;  // TEMP
-    }
-
-    async checkBookingToDelete(bookingToDelete: BookingModel): Promise<BookingModel[]> {
-        let bookingToDeleteDate: string =  this.convertDateToDbFormat(bookingToDelete.date);
-       // let bookingToDeleteTime: string =  this.convertDateToDbFormat(bookingToDelete.date);
-
-        const bookingAtGivenDateAndTime = await this.bookingRepository.findOne({
-            where: {date: bookingToDeleteDate, time: bookingToDelete.time},
-        });
-        if (bookingAtGivenDateAndTime != null)
-        {
-        console.log(bookingAtGivenDateAndTime)
-            if ((bookingAtGivenDateAndTime.email == bookingToDelete.email) 
-                && (bookingAtGivenDateAndTime.phone == bookingToDelete.phone)) {
-                // Delete booking: BookingModel[]
-                let numberOfBookingSlots
+        let bookingFoundToDelete: BookingModel[] = await this.getBookingOnDateAndTime(bookingToDelete);
+        if (bookingFoundToDelete != null) {
+            let isAuthorisedToDelete = true;
+            // Check that user is authorised to delete their booing
+            for (let i = 0; i < bookingFoundToDelete.length; i++) {
+                if ((bookingFoundToDelete[i].email != bookingToDelete.email)
+                    || (bookingFoundToDelete[i].phone != bookingToDelete.phone)) {
+                    // Email and phone don't match booking
+                    isAuthorisedToDelete = false;
+                }
+            }
+            if (isAuthorisedToDelete) {
+                for (let i = 0; i < bookingFoundToDelete.length; i++) {
+                    await this.bookingRepository.delete(bookingFoundToDelete[i]);
+                }
+            } else {
+                // Not authorised to delete this booking
+                console.log('Not authorised to delete this booking');
             }
         } else {
-        // No booking at that time found
+            // No booking at that time found
+            console.log('No booking at that time found');
         }
-      /*   let bookingsOnDate: BookingModel[] = await this.getBookingsByDate(bookingToDeleteDate);
-        for (let i = 0; i < bookingsOnDate.length; i++) {
-            
-        } */
+        return bookingFoundToDelete;
+    }
 
+    
+    async getBookingOnDateAndTime(bookingToGet: BookingModel): Promise<BookingModel[]> {
+        const bookingFound: BookingModel[] = [];
+        let bookingToGetDate: string = this.convertDateToDbFormat(bookingToGet.date);
+        let numberOfBookingSlots = bookingToGet.duration / this.bookingSlotDuration;
+        console.log('numberOfBookingSlots = ' + numberOfBookingSlots);
+        for (let i = 0; i < numberOfBookingSlots; i++) {
+            let bookingTimeInMinutesAfterMidnight = 
+                (this.convertTimeToMinutesAfterMidnight(bookingToGet.time) + (i * this.bookingSlotDuration));
+            let bookingTime = this.convertMinutesAfterMidnightToTime(bookingTimeInMinutesAfterMidnight);
+            console.log('bookingTime = ' + i + ' = ' + bookingTime);
+            const bookingAtGivenDateAndTime = await this.bookingRepository.findOne({
+                where: {date: bookingToGetDate, time: bookingTime},
+            });
+            bookingFound.push(bookingAtGivenDateAndTime)
+        }
+        console.log('bookingFound = ' + bookingFound);
+        return bookingFound;
+    }
+    
         
-            /*   for (let i = this.startTime; i < (this.finishTime - duration); i++) { //tricky
-                   
-                   for (let j = 0; j < enquiryDuration.length; j++) {
-                       
-                   }            const test = await this.bookingRepository.findOne({
-                       where: {date: enquiryDuration[i].date, time: newBooking[i].time},
-       
-                   });  
-            if (true) { // available
-                console.log('TIME SLOT IS AVAILABLE !! Adding Booking');
-            } else {
-                //console.log('Booking already  found - id:' + bookingDB.date + '  email: ' + bookingDB.email);
-                console.log('DB NOT UPDATED');
-            } */
-         return null;  // mock
-     }
-   
     convertMinutesAfterMidnightToTime(timeInMinutes: number): string {
         const bookableTimeHour: string = Math.trunc((timeInMinutes / 60)).toString();
         let bookableTimeMinutes: string = (timeInMinutes % 60).toString();

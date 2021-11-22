@@ -13,6 +13,6 @@ export interface IBookingService {
 
     deleteBooking(bookingToDelete: BookingModel): Promise<BookingModel[]>;
 
-    checkBookingToDelete(bookingToDelete: BookingModel): Promise<BookingModel[]>;
+    //checkBookingToDelete(bookingToDelete: BookingModel): Promise<BookingModel[]>;
 
 }
