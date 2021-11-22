@@ -107,44 +107,54 @@ export class BookingService implements IBookingService {
         console.log('numberOfSlotsForBooking: ' + numberOfSlotsForBooking);
         const createdBookings: BookingModel[] = [];  // NEEDED?
         const convertedDate: string = this.convertDateToDbFormat(newBooking.date);
-        console.log('convertedDate: ', convertedDate);
-        const bookingStartTimeInMinutesAfterMidnight: number = this.convertTimeToMinutesAfterMidnight(newBooking.time);
+        // Added security check to make sure time is available
+        let checkIfBookingTimeIsAvailable: BookingModel[] = await this.getBookingOnDateAndTime(newBooking);
+        if (checkIfBookingTimeIsAvailable == null) {
+            console.log('convertedDate: ', convertedDate);
+            const bookingStartTimeInMinutesAfterMidnight: number = this.convertTimeToMinutesAfterMidnight(newBooking.time);
 //  Cycle through booking array
-        for (let i = 0; i < numberOfSlotsForBooking; i++) {
-            let bookingTimeInMinutesAfterMidnight: number = bookingStartTimeInMinutesAfterMidnight + (i * this.bookingSlotDuration);
-            console.log('bookingTimeInMinutesAfterMidnight ' + i + ' = ' + bookingTimeInMinutesAfterMidnight);
-            let bookingTime: string = this.convertMinutesAfterMidnightToTime(bookingTimeInMinutesAfterMidnight);
-            console.log(' bookingTime ' + i + ' = ' + bookingTime);
-            let createBooking = this.bookingRepository.create();
-            createBooking.date = convertedDate;
-            createBooking.time = bookingTime;
-            createBooking.service = newBooking.service;
-            createBooking.email = newBooking.email;
-            createBooking.phone = newBooking.phone;
-            createBooking.address = newBooking.address;
-            createBooking.city = newBooking.city;
-            createBooking.postcode = newBooking.postcode;
-            createBooking.notes = newBooking.notes;
-            createBooking.duration = newBooking.duration;
-            createBooking = await this.bookingRepository.save(createBooking);
-            createdBookings.push(createBooking);
-            console.log('SERVICE: pushes booking: ', createBooking);
+            for (let i = 0; i < numberOfSlotsForBooking; i++) {
+                let bookingTimeInMinutesAfterMidnight: number = bookingStartTimeInMinutesAfterMidnight + (i * this.bookingSlotDuration);
+                console.log('bookingTimeInMinutesAfterMidnight ' + i + ' = ' + bookingTimeInMinutesAfterMidnight);
+                let bookingTime: string = this.convertMinutesAfterMidnightToTime(bookingTimeInMinutesAfterMidnight);
+                console.log(' bookingTime ' + i + ' = ' + bookingTime);
+                let createBooking = this.bookingRepository.create();
+                createBooking.date = convertedDate;
+                createBooking.time = bookingTime;
+                createBooking.service = newBooking.service;
+                createBooking.email = newBooking.email;
+                createBooking.phone = newBooking.phone;
+                createBooking.address = newBooking.address;
+                createBooking.city = newBooking.city;
+                createBooking.postcode = newBooking.postcode;
+                createBooking.notes = newBooking.notes;
+                createBooking.duration = newBooking.duration;
+                createBooking = await this.bookingRepository.save(createBooking);
+                createdBookings.push(createBooking);
+                console.log('SERVICE: pushes booking: ', createBooking);
+            }
+            console.log('SERVICE: returns booking: ', createdBookings);
+            //       const updatedstock: Stock = JSON.parse(JSON.stringify(stockDB));  // NEED TO PARSE???
+            return createdBookings;  // will this work??
+        } else {
+            console.log('SERVICE: addbooking ERROR: Time is not available');
         }
-        console.log('SERVICE: returns booking: ', createdBookings);
-        //       const updatedstock: Stock = JSON.parse(JSON.stringify(stockDB));  // NEED TO PARSE???
-        return createdBookings;  // will this work??
     }
 
   
     async deleteBooking(bookingToDelete: BookingModel): Promise<BookingModel[]> {
+        console.log('SERVICE: deleteBooking called');
         let bookingFoundToDelete: BookingModel[] = await this.getBookingOnDateAndTime(bookingToDelete);
-        if (bookingFoundToDelete != null) {
+        console.log('bookingFoundToDelete.length = ' + bookingFoundToDelete.length);
+
+        if (bookingFoundToDelete.length !== 0) {
             let isAuthorisedToDelete = true;
             // Check that user is authorised to delete their booing
             for (let i = 0; i < bookingFoundToDelete.length; i++) {
                 if ((bookingFoundToDelete[i].email != bookingToDelete.email)
                     || (bookingFoundToDelete[i].phone != bookingToDelete.phone)) {
                     // Email and phone don't match booking
+                    console.log('SERVICE ERROR in deleteBooking: isAuthorisedToDelete = false');
                     isAuthorisedToDelete = false;
                 }
             }
@@ -152,32 +162,38 @@ export class BookingService implements IBookingService {
                 for (let i = 0; i < bookingFoundToDelete.length; i++) {
                     await this.bookingRepository.delete(bookingFoundToDelete[i]);
                 }
+                return bookingFoundToDelete;
             } else {
                 // Not authorised to delete this booking
-                console.log('Not authorised to delete this booking');
+                console.log('SERVICE ERROR in deleteBooking: Not authorised to delete this booking');
             }
         } else {
             // No booking at that time found
-            console.log('No booking at that time found');
+            console.log('SERVICE ERROR in deleteBooking: No booking at that time found');
         }
-        return bookingFoundToDelete;
     }
 
     
     async getBookingOnDateAndTime(bookingToGet: BookingModel): Promise<BookingModel[]> {
-        const bookingFound: BookingModel[] = [];
+        let bookingFound: BookingModel[] = [];
         let bookingToGetDate: string = this.convertDateToDbFormat(bookingToGet.date);
         let numberOfBookingSlots = bookingToGet.duration / this.bookingSlotDuration;
         console.log('numberOfBookingSlots = ' + numberOfBookingSlots);
         for (let i = 0; i < numberOfBookingSlots; i++) {
             let bookingTimeInMinutesAfterMidnight = 
                 (this.convertTimeToMinutesAfterMidnight(bookingToGet.time) + (i * this.bookingSlotDuration));
+
+            // console.log('bookingTimeInMinutesAfterMidnight [' + i + '] = ' + bookingTimeInMinutesAfterMidnight);
             let bookingTime = this.convertMinutesAfterMidnightToTime(bookingTimeInMinutesAfterMidnight);
-            console.log('bookingTime = ' + i + ' = ' + bookingTime);
-            const bookingAtGivenDateAndTime = await this.bookingRepository.findOne({
+            console.log('bookingToGetDate = [' + i + '] = ' + bookingToGetDate);
+            console.log('bookingTime = [' + i + '] = ' + bookingTime);
+            let bookingAtGivenDateAndTime: BookingModel = await this.bookingRepository.findOne({
                 where: {date: bookingToGetDate, time: bookingTime},
             });
-            bookingFound.push(bookingAtGivenDateAndTime)
+            console.log('bookingAtGivenDateAndTime = [' + i + '] = ' + bookingAtGivenDateAndTime);
+            if (bookingAtGivenDateAndTime) {
+                bookingFound.push(bookingAtGivenDateAndTime)
+            }
         }
         console.log('bookingFound = ' + bookingFound);
         return bookingFound;
@@ -189,7 +205,7 @@ export class BookingService implements IBookingService {
         let bookableTimeMinutes: string = (timeInMinutes % 60).toString();
         if (bookableTimeMinutes === '0') bookableTimeMinutes = '00';  // returns '00' minutes rather than '0'. Eg 9:00
         const bookableTimeAsString: string = bookableTimeHour + ':' + bookableTimeMinutes;
-        console.log('bookableTimeAsString =  ' + bookableTimeAsString);
+        // console.log('bookableTimeAsString =  ' + bookableTimeAsString);
         return bookableTimeAsString;
     }
 
@@ -199,9 +215,9 @@ export class BookingService implements IBookingService {
         const splitTimeString = time.split(':');
         timeAsNumberArray[0] = parseInt(splitTimeString[0]);
         timeAsNumberArray[1] = parseInt(splitTimeString[1]);
-        console.log('bookingTime hour = ' + timeAsNumberArray[0] + ' minute = ' + timeAsNumberArray[1]);
+        // console.log('bookingTime hour = ' + timeAsNumberArray[0] + ' minute = ' + timeAsNumberArray[1]);
         let timeInMinutesAfterMidnight: number = (timeAsNumberArray[0] * 60) + (timeAsNumberArray[1]);
-        console.log('timeInMinutesAfterMidnight = ' + timeInMinutesAfterMidnight);
+        // console.log('timeInMinutesAfterMidnight = ' + timeInMinutesAfterMidnight);
         return timeInMinutesAfterMidnight;
     }
     
@@ -212,12 +228,12 @@ export class BookingService implements IBookingService {
         const month = splitDate[1];
         const date = splitDate[2];
         const year = splitDate[3];
-        console.log('day = ' + day );
+    /*    console.log('day = ' + day );
         console.log('month = ' + month );
         console.log('date = ' + date );
-        console.log('year = ' + year );
+        console.log('year = ' + year ); */
         const convertedDate = day + ' ' + month + ' ' + date + ' ' + year;
-        console.log('convertedDate = ' + convertedDate );
+      //  console.log('convertedDate = ' + convertedDate );
         return convertedDate;
     }
     

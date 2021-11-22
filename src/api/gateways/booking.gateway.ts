@@ -42,7 +42,7 @@ export class BookingGateway
         this.server.emit('availableTimes', availableTimes);
         } catch (e) {
             console.log('GATEWAY ERROR: caught in postSelectedDate');
-            client._error(e.message);  // PROBLEM HERE ??
+            // client._error(e.message);  // PROBLEM HERE ??
         }
     }
         
@@ -84,7 +84,7 @@ export class BookingGateway
             }
         } catch (e) {
             console.log('GATEWAY ERROR: caught in postBooking');
-            client._error(e.message);  // PROBLEM HERE ??
+            //client._error(e.message);  // PROBLEM HERE ??
         }
     }
     
@@ -94,7 +94,7 @@ export class BookingGateway
         @MessageBody() bookingToDeleteDto: BookingDto,
         @ConnectedSocket() client: Socket,
     ): Promise<void> {
-        console.log('deleteBooking called');
+        console.log('GATEWAY: deleteBooking called');
         try {
             const bookingToDelete: BookingModel = JSON.parse(
                 JSON.stringify(bookingToDeleteDto),
@@ -103,7 +103,8 @@ export class BookingGateway
             console.log(deletedBooking.length, ' deletedBooking slots found ');
             this.server.emit('deleteBooking', deletedBooking);
         } catch (e) {
-            client._error(e.message);  // PROBLEM HERE ??
+            console.log('GATEWAY ERROR: caught in deleteBooking');
+            // client._error(e.message);  // PROBLEM HERE ??
         }
     }
 
