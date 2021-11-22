@@ -9,4 +9,5 @@ export interface BookingModel {
     city: string;
     postcode: number;
     notes: string;
+    duration: number;
 }

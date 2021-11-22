@@ -91,7 +91,7 @@ export class BookingService implements IBookingService {
     }
 
 
-    async getBookingsByDate(selectedDate: string): Promise<BookingModel[]> {  // replace by enquiry??
+    async getBookingsByDate(selectedDate: string): Promise<BookingModel[]> {
         const bookingsOnSelectedDate: BookingEntity[] = await this.bookingRepository.find({
             where: {date: selectedDate},
         });
@@ -100,9 +100,9 @@ export class BookingService implements IBookingService {
    }
 
 
-    async addBooking(newBooking: BookingModel, duration: number): Promise<BookingModel[]> {
+    async addBooking(newBooking: BookingModel): Promise<BookingModel[]> {
         console.log('booking service: addBooking');
-        const numberOfSlotsForBooking: number = duration / this.bookingSlotDuration;
+        const numberOfSlotsForBooking: number = newBooking.duration / this.bookingSlotDuration;
         console.log('numberOfSlotsForBooking: ' + numberOfSlotsForBooking);
         const createdBookings: BookingModel[] = [];  // NEEDED?
         const convertedDate: string = this.convertDateToDbFormat(newBooking.date);
@@ -124,6 +124,7 @@ export class BookingService implements IBookingService {
             createBooking.city = newBooking.city;
             createBooking.postcode = newBooking.postcode;
             createBooking.notes = newBooking.notes;
+            createBooking.duration = newBooking.duration;
             createBooking = await this.bookingRepository.save(createBooking);
             createdBookings.push(createBooking);
             console.log('SERVICE: pushes booking: ', createBooking);
@@ -145,12 +146,24 @@ export class BookingService implements IBookingService {
         let bookingToDeleteDate: string =  this.convertDateToDbFormat(bookingToDelete.date);
        // let bookingToDeleteTime: string =  this.convertDateToDbFormat(bookingToDelete.date);
 
-        // const timeToTest = await this.bookingRepository.findOne({where: {date: bookingToDeleteDate, time: bookingToDelete.time},
-
-         let bookingsOnDate: BookingModel[] = await this.getBookingsByDate(bookingToDeleteDate);
+        const bookingAtGivenDateAndTime = await this.bookingRepository.findOne({
+            where: {date: bookingToDeleteDate, time: bookingToDelete.time},
+        });
+        if (bookingAtGivenDateAndTime != null)
+        {
+        console.log(bookingAtGivenDateAndTime)
+            if ((bookingAtGivenDateAndTime.email == bookingToDelete.email) 
+                && (bookingAtGivenDateAndTime.phone == bookingToDelete.phone)) {
+                // Delete booking: BookingModel[]
+                let numberOfBookingSlots
+            }
+        } else {
+        // No booking at that time found
+        }
+      /*   let bookingsOnDate: BookingModel[] = await this.getBookingsByDate(bookingToDeleteDate);
         for (let i = 0; i < bookingsOnDate.length; i++) {
             
-        }
+        } */
 
         
             /*   for (let i = this.startTime; i < (this.finishTime - duration); i++) { //tricky

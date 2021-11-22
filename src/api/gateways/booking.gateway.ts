@@ -35,11 +35,15 @@ export class BookingGateway
         console.log('GATEWAY: postSelectedDate');
         console.log('selectedDateAndDuration.date = ' +selectedDateAndDuration.date);
         console.log('selectedDateAndDuration.duration = ' +selectedDateAndDuration.duration);
-        let selectedDateAndDurationModel: dateEnquiryModel = JSON.parse(JSON.stringify(selectedDateAndDuration)); // mock
-
+        try {
+            let selectedDateAndDurationModel: dateEnquiryModel = JSON.parse(JSON.stringify(selectedDateAndDuration)); // mock
         let availableTimes = await this.bookingService.getAvailableTimesByDate(selectedDateAndDurationModel);
         console.log('GATEWAY: availableTimes', availableTimes);
         this.server.emit('availableTimes', availableTimes);
+        } catch (e) {
+            console.log('GATEWAY ERROR: caught in postSelectedDate');
+            //client._error(e.message);  // PROBLEM HERE
+        }
     }
         
         
@@ -60,7 +64,7 @@ export class BookingGateway
         console.log('newBookingDTO notes: ' + newBookingDto.notes);
         console.log('newBookingDTO duration: ' + newBookingDto.duration);
         try {
-            let newBooking: BookingModel = JSON.parse(JSON.stringify(newBookingDto));
+            let newBooking: BookingModel = JSON.parse(JSON.stringify(newBookingDto)); // mock
             console.log('newBooking date: ' + newBooking.date);
             console.log('newBooking time: ' + newBooking.time);
             console.log('newBooking service: ' + newBooking.service);
@@ -70,47 +74,39 @@ export class BookingGateway
             console.log('newBooking city: ' + newBooking.city);
             console.log('newBooking postcode: ' + newBooking.postcode);
             console.log('newBooking notes: ' + newBooking.notes);
-            console.log(' duration: ' + newBookingDto.duration);
-            let addedBooking = await this.bookingService.addBooking(newBooking, newBookingDto.duration);
-            if (addedBooking == null) {
+            console.log('newBooking duration: ' + newBooking.duration);
+            let addedBookings = await this.bookingService.addBooking(newBooking);
+            if (addedBookings == null) {
                 console.log('GATEWAY: booking is null: NO new booking emitted');
             } else {
-                console.log('GATEWAY: emits booking: ', addedBooking);
-                this.server.emit('newBooking', addedBooking);
+                console.log('GATEWAY: emits booking: ', addedBookings);
+                this.server.emit('newBooking', addedBookings);
             }
         } catch (e) {
-            console.log('GATEWAY: emits error:');
-            //client._error(e.message);  // PROBLEM HERE
-        }
-    }
-
-
-    @SubscribeMessage('deleteBooking')
-    async handleDeleteBookingEvent(
-        @MessageBody() bookingToDeleteDto: BookingDto,
-        @ConnectedSocket() client: Socket,
-    ): Promise<void> {
-        try {
-            console.log('bookingToDeleteDto date: ' + bookingToDeleteDto.date);
-            console.log('bookingToDeleteDto time: ' + bookingToDeleteDto.time);
-            console.log('bookingToDeleteDto email: ' + bookingToDeleteDto.email);
-            console.log('bookingToDeleteDto phone: ' + bookingToDeleteDto.phone);
-           // console.log(' duration: ' + newBookingDto.duration);
-            let bookingToDelete: BookingModel = JSON.parse(JSON.stringify(bookingToDeleteDto));
-            console.log('bookingToDelete date: ' + bookingToDelete.date);
-            console.log('bookingToDelete time: ' + bookingToDelete.time);
-            console.log('bookingToDelete email: ' + bookingToDelete.email);
-            console.log('bookingToDelete phone: ' + bookingToDelete.phone);
-            let deletedBooking = await this.bookingService.deleteBooking(bookingToDelete);
-
-
-        } catch (e) {
-            console.log('GATEWAY: emits error:');
+            console.log('GATEWAY ERROR: caught in postBooking');
             //client._error(e.message);  // PROBLEM HERE
         }
     }
     
-        
+/*
+    @SubscribeMessage('requestDateBookings')
+    async handleGetDateBookingsEvent(
+        @MessageBody() dateDto: DateModel,
+        @ConnectedSocket() client: Socket,
+    ): Promise<void> {
+        console.log('handleGetHighscoreCommentsEvent called');
+        try {
+            const dateModel: DateModel = JSON.parse(
+                JSON.stringify(dateDto ),
+            );
+            const dateBookings: BookingModel[] = await this.bookingService.getBookingsByDate(dateModel.date);
+            console.log(dateBookings.length, ' dateBookings found ');
+            this.server.emit('dateBookings', dateBookings);
+        } catch (e) {
+            client._error(e.message);
+        }
+    }
+
     /*
     @SubscribeMessage('login')
     async handleLoginEvent(
