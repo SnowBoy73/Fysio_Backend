@@ -17,7 +17,7 @@ import { BookingEntity } from '../entities/booking.entity';
                 password: configService.get('POSTGRES_PASSWORD'),
                 database: configService.get('POSTGRES_DB'),
                 entities: [BookingEntity], // , AdminEntity
-                synchronize: true, //true for DEV, but deletes data if DB is shutdown, // false for PRODUCTION
+                synchronize: false, //true for DEV, but deletes data if DB is shutdown, // false for PRODUCTION
                 ssl: true, // New from Lars
                 extra: {
                   ssl: {
