@@ -107,9 +107,9 @@ export class BookingService implements IBookingService {
         console.log('numberOfSlotsForBooking: ' + numberOfSlotsForBooking);
         const createdBookings: BookingModel[] = [];  // NEEDED?
         const convertedDate: string = this.convertDateToDbFormat(newBooking.date);
-        // Added security check to make sure time is available
+        // Added security check to make sure time is available 
         let checkIfBookingTimeIsAvailable: BookingModel[] = await this.getBookingOnDateAndTime(newBooking);
-        if (checkIfBookingTimeIsAvailable == null) {
+        if (checkIfBookingTimeIsAvailable) {
             console.log('convertedDate: ', convertedDate);
             const bookingStartTimeInMinutesAfterMidnight: number = this.convertTimeToMinutesAfterMidnight(newBooking.time);
 //  Cycle through booking array
