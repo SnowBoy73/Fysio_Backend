@@ -17,6 +17,7 @@ import { BookingDto } from '../dtos/booking.dto';
 import { BookingModel } from '../../core/models/booking.model';
 import {dateEnquiryDto} from "../dtos/date-enquiry.dto";
 import {dateEnquiryModel} from "../dtos/date-enquiry.model";
+import {ok} from "assert";
 
 @WebSocketGateway()
 export class BookingGateway
@@ -37,9 +38,12 @@ export class BookingGateway
         console.log('selectedDateAndDuration.duration = ' +selectedDateAndDuration.duration);
         try {
             let selectedDateAndDurationModel: dateEnquiryModel = JSON.parse(JSON.stringify(selectedDateAndDuration)); // mock
-        let availableTimes = await this.bookingService.getAvailableTimesByDate(selectedDateAndDurationModel);
-        console.log('GATEWAY: availableTimes', availableTimes);
-        this.server.emit('availableTimes', availableTimes);
+            let availableTimes = await this.bookingService.getAvailableTimesByDate(selectedDateAndDurationModel);
+            console.log('GATEWAY: availableTimes', availableTimes);
+            this.server.emit('availableTimes', availableTimes);
+       /* } then {
+        } finally { // ok; */
+        
         } catch (e) {
             console.log('GATEWAY ERROR: caught in postSelectedDate');
             // client._error(e.message);  // PROBLEM HERE ??
