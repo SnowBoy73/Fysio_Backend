@@ -95,7 +95,7 @@ export class BookingService implements IBookingService {
         const bookingsOnSelectedDate: BookingEntity[] = await this.bookingRepository.find({
             where: {date: selectedDate},
         });
-        // console.log('bookingsOnSelectedDate.length = ' + bookingsOnSelectedDate.length );
+         //console.log('bookingsOnSelectedDate.length = ' + bookingsOnSelectedDate.length );
         //  const updatedstock: Stock = JSON.parse(JSON.stringify(stockDB));  // NEED TO PARSE???
         return bookingsOnSelectedDate;
    }
@@ -233,7 +233,7 @@ export class BookingService implements IBookingService {
         console.log('date = ' + date );
         console.log('year = ' + year ); */
         const convertedDate = day + ' ' + month + ' ' + date + ' ' + year;
-      //  console.log('convertedDate = ' + convertedDate );
+        console.log('convertedDate = ' + convertedDate );
         return convertedDate;
     }
 
