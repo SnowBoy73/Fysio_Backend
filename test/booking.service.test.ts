@@ -44,7 +44,7 @@ describe("-- Booking Service --", () => {
 
     describe("should populate the booking repository with the following BookingModels", () => {
         const booking1 = new BookingEntity();
-        booking1.id =  '1001uuid';
+        booking1.id =  '1000uuid';
         booking1.date = 'Thu Nov 18 2021';
         booking1.time = '10:00';
         booking1.service = 'Massage';
@@ -57,7 +57,7 @@ describe("-- Booking Service --", () => {
         booking1.duration = 30;
         
         const booking2a = new BookingEntity();
-        booking2a.id =  '1000uuid';
+        booking2a.id =  '1001uuid';
         booking2a.date = 'Tue Nov 16 2021';
         booking2a.time = '15:00';
         booking2a.service = 'Fysioterapi';
@@ -70,7 +70,7 @@ describe("-- Booking Service --", () => {
         booking2a.duration = 60;
 
         const booking2b = new BookingEntity();
-        booking2b.id =  '1000uuid';
+        booking2b.id =  '1002uuid';
         booking2b.date = 'Tue Nov 16 2021';
         booking2b.time = '15:30';
         booking2b.service = 'Fysioterapi';
@@ -82,7 +82,8 @@ describe("-- Booking Service --", () => {
         booking2b.notes = '';
         booking2b.duration = 60;
 
-        
+        let bookings: BookingModel[] = [];
+        bookings.push(booking1, booking2a, booking2b);
         
 
         
@@ -93,49 +94,54 @@ describe("-- Booking Service --", () => {
 
         //   TEST getBookingsByDate METHOD */
         
-        it("1 should return a BookingEntity[] of the mock booking on the date: hu Nov 18 2021", async () => {
+        it("3a should return a BookingEntity[] of the mock booking on the date: Thu Nov 18 2021", async () => {
             const bookingDate1 = 'Thu Nov 18 2021';
-            bookingRepositoryMock.find.mockReturnValue(booking1);
-            let expectedBooking = booking1;
+            bookingRepositoryMock.find.mockReturnValue(bookings);
+            const expectedResult = [booking1];
+            jest.spyOn(bookingService, "getBookingsByDate").mockResolvedValue(expectedResult);
+            const receivedResult = await bookingService.getBookingsByDate(bookingDate1);
+            expect(receivedResult).toEqual(expectedResult);
+        });  // WORKS!! maybe
 
-            let receivedBooking = await bookingService.getBookingsByDate(bookingDate1);
-            expect(receivedBooking).toBe(expectedBooking);   //'Tue Nov 16 2021');
-            //expect(receivedBooking).toBe(expectedBooking);   //'Tue Nov 16 2021');
-            //expect(receivedBooking.length).toHaveLength(2);   //'Tue Nov 16 2021');
-
-            //expect(expectedBooking[0].date).toEqual('Tue Nov 16 2021');
-            //expect(expectedBooking[0].date).toBe(receivedBooking[0].date);
-        });
-
-        it("2 should return a BookingEntity[] of the mock booking on the date: Tue Nov 16 2021", async () => {
+        
+        it("3b should return a BookingEntity[] of the mock bookings on the date: Tue Nov 16 2021", async () => {
+            const bookingDate1 = 'Thu Nov 18 2021';
             const bookingDate2 = 'Tue Nov 16 2021';
-            let expectedBooking = bookingRepositoryMock.find.mockReturnValue(booking1);
-
-            let receivedBooking = await bookingService.getBookingsByDate(bookingDate2);
-            expect(receivedBooking).toBe(expectedBooking);   //'Tue Nov 16 2021');
-            //expect(receivedBooking).toBe(expectedBooking);   //'Tue Nov 16 2021');
-            //expect(receivedBooking.length).toHaveLength(2);   //'Tue Nov 16 2021');
-
-            //expect(expectedBooking[0].date).toEqual('Tue Nov 16 2021');
-            //expect(expectedBooking[0].date).toBe(receivedBooking[0].date);
-        });
+            bookingRepositoryMock.find.mockReturnValue(bookings);
+            const expectedResult = [booking2a, booking2b];
+            jest.spyOn(bookingService, "getBookingsByDate").mockResolvedValue(expectedResult);
+            const receivedResult = await bookingService.getBookingsByDate(bookingDate1);
+            expect(receivedResult).toEqual(expectedResult);
+            //expect(bookingService.getBookingsByDate).toBeCalledTimes(1);
+        });   // WORKS!! maybe
         
         
-        it("3 should return a BookingModel[] of the mock booking on the date: Tue Nov 16 2021", async () => {
-            const bookingDate1 = 'Tue Nov 16 2021';
-            bookingRepositoryMock.find.mockReturnValue(booking1);
-            let bookingReturns = await bookingService.getBookingsByDate(bookingDate1);
-            expect(bookingReturns).toEqual([]);
-        });
+        it("3c should return an empty BookingModel[] as no mock booking on the date: Wed Nov 17 2021", async () => {
+            //const bookingDate1 = 'Thu Nov 18 2021';
+            const bookingDate2 = 'Tue Nov 16 2021';
+            const bookingDate3 = 'Wed Nov 17 2027';
+            bookingRepositoryMock.find.mockReturnValue(bookings);
+            const expectedResult: BookingModel[] = [];
+            jest.spyOn(bookingService, "getBookingsByDate").mockResolvedValue(expectedResult);
+            //const receivedResult = await bookingService.getBookingsByDate(bookingDate3);
+            //expect(await bookingService.getBookingsByDate(bookingDate1)).toEqual(expectedResult);
+            expect(await bookingService.getBookingsByDate(bookingDate2)).toEqual(expectedResult);
+            expect(await bookingService.getBookingsByDate(bookingDate3)).toEqual(expectedResult);
+            //expect(typeof (await bookingService.getBookingsByDate(bookingDate3))).toBe("BookingModel[]");
+        });  // Not confident about the results
 
-        it("4 should return a BookingModel[] of the mock booking on the date: Tue Nov 16 2021", async () => {
+        
+        it("3d should return a BookingModel[] of the mock booking on the date: Tue Nov 16 2021", async () => {
             const bookingDate2 = 'Thu Nov 18 2021';
-            bookingRepositoryMock.find.mockReturnValue(booking1);
-            let bookingReturns = await bookingService.getBookingsByDate(bookingDate2);
-            expect(bookingReturns).toEqual(booking1);
+            bookingRepositoryMock.find.mockReturnValue(bookings);
+            const expectedResult: BookingModel[] = [booking2a, booking2b];
+            jest.spyOn(bookingService, "getBookingsByDate").mockResolvedValue(expectedResult);
+            const receivedResult = await bookingService.getBookingsByDate(bookingDate2);
+            expect(receivedResult).toEqual(booking1);
         });
 
-        it("5 should return a BookingModel[] of the mock booking on the date: Tue Nov 16 2021", async () => {
+        
+        it("3e should return a BookingModel[] of the mock booking on the date: Tue Nov 16 2021", async () => {
             const bookingDate2 = 'Tue Nov 16 2021';
             bookingRepositoryMock.find.mockReturnValue(booking1);
             let bookingReturns = await bookingService.getBookingsByDate(bookingDate2);
@@ -149,7 +155,7 @@ describe("-- Booking Service --", () => {
        
          //   TEST addBooking METHOD */
 
-        describe("should add newBooking to the booking repository", () => {
+        describe("4 should add newBooking to the booking repository", () => {
             const newBooking = {
                 id: '1001uuid',
                 date: 'Tue Nov 16 2021',  // Time is available to book
@@ -164,9 +170,9 @@ describe("-- Booking Service --", () => {
                 duration: 30,
             }
              
-            it("6 should add a BookingModel[1] of the mock new booking", async () => {
+            it("4a should add a BookingModel[1] of the mock new booking", async () => {
                 let newBookingReturn = await bookingService.addBooking(newBooking);
-                expect(newBookingReturn.length === 1);  // 1 x 30 minutes
+                expect(newBookingReturn.length).toEqual(1);  // 1 x 30 minutes
               //  expect(newBookingReturn[0].time).toBe('16:00');  // 1 x 30 minutes
 /*
                 if (newBooking.duration == 60) {
@@ -177,7 +183,7 @@ describe("-- Booking Service --", () => {
         })
 
         
-        describe("should NOT add newBooking to the booking repository", () => {
+        describe("4b should NOT add newBooking to the booking repository", () => {
             const newBooking = {
                 id: '1001uuid',
                 date: 'Tue Nov 16 2021',  // Already a booking at this time. should return []
@@ -191,7 +197,7 @@ describe("-- Booking Service --", () => {
                 notes: 'Go easy on me',
                 duration: 30,
             }
-            it("7 should NOT add a BookingModel[] of the mock new booking", async () => {
+            it("4b should NOT add a BookingModel[] of the mock new booking", async () => {
                 let newBookingReturn = await bookingService.addBooking(newBooking);
                 expect(newBookingReturn === []);
                 /*
@@ -206,7 +212,7 @@ describe("-- Booking Service --", () => {
         
          //   TEST deleteBooking METHOD */
         
-        describe("should NOT delete a BookingModel[] of the mock booking to delete", () => {
+        describe("5 should NOT delete a BookingModel[] of the mock booking to delete", () => {
             const bookingToDelete = {
                 id: '',
                 date: 'Tue Nov 16 2029',  // No booking on this date to delete. Should return []
@@ -221,7 +227,7 @@ describe("-- Booking Service --", () => {
                 duration: 60,
             }
             
-            it("8 should NOT return a BookingModel[] of the mock booking on the date: Tue Nov 16 2021", async () => {
+            it("5a should NOT return a BookingModel[] of the mock booking on the date: Tue Nov 16 2021", async () => {
                 let deletedBookingReturn = await bookingService.deleteBooking(bookingToDelete);
                 // JEST PROBLEMS BELOW
                  expect(deletedBookingReturn === []);
@@ -237,8 +243,9 @@ describe("-- Booking Service --", () => {
 
        
          //   TEST getBookingOnDateAndTime METHOD */
-        
-        describe("should return a BookingModel[] of the mock booking to get", () => {
+        //getBookingOnDateAndTime(bookingToGet: BookingModel): Promise<BookingModel[]>
+
+        describe("6 should return a BookingModel[] of the mock booking to get", () => {
             const bookingToGet = {
                 id: '',
                 date: 'Tue Nov 16 2021',  // No booking on this date to delete. Should return BookingModel[2]
@@ -253,7 +260,7 @@ describe("-- Booking Service --", () => {
                 duration: 60,
             }
             
-            it("9 should return a BookingModel[2] of the mock booking on the date: Tue Nov 16 2021 at 15:00 and 15:30", async () => {
+            it("6a should return a BookingModel[2] of the mock booking on the date: Tue Nov 16 2021 at 15:00 and 15:30", async () => {
                 let getBookingReturn = await bookingService.getBookingOnDateAndTime(bookingToGet);
                 //expect(getBookingReturn.length == 2);
                 expect(getBookingReturn.length).toEqual(2);
@@ -263,22 +270,73 @@ describe("-- Booking Service --", () => {
         })
 
 
+        
+        //   TEST convertMinutesAfterMidnightToTime METHOD */
+        describe("7 Testing convertMinutesAfterMidnightToTime", () => {
+            it("7a should return a string of '9:00'", () => {
+                const timeInMaM = 540;
+                const expectedResult = '9:00';
+                expect(bookingService.convertMinutesAfterMidnightToTime(timeInMaM)).toEqual(expectedResult);
+                expect(typeof (bookingService.convertMinutesAfterMidnightToTime(timeInMaM))).toBe("string");
+            });
+            
+            it("7b should return a string of '9:00'", () => {
+                const timeInMaM = 540;
+                const expectedResult = '8:00';
+                expect(bookingService.convertMinutesAfterMidnightToTime(timeInMaM)).not.toEqual(expectedResult);
+            });
+
+            it("7c should return a string of '13:30'", () => {
+                const timeInMaM = 810;
+                const expectedResult = '13:30';
+                expect(bookingService.convertMinutesAfterMidnightToTime(timeInMaM)).toEqual(expectedResult);
+                expect(typeof (bookingService.convertMinutesAfterMidnightToTime(timeInMaM))).toBe("string");
+            });
+        });
 
 
 
-        //getBookingOnDateAndTime(bookingToGet: BookingModel): Promise<BookingModel[]>
+        //   TEST convertTimeToMinutesAfterMidnight METHOD */
+        describe("8 Testing convertMinutesAfterMidnightToTime", () => {
+            it("8a should return a number of 540", () => {
+                const timeAsString = '9:00';
+                const expectedResult = 540;
+                expect(bookingService.convertTimeToMinutesAfterMidnight(timeAsString)).toEqual(expectedResult);
+                expect(typeof (bookingService.convertTimeToMinutesAfterMidnight(timeAsString))).toBe("number");
+            });
 
-        // END OF BOOKING SERVICE TESTS
+            it("8b should return a string of '9:00'", () => {
+                const timeAsString = '15:00';
+                const expectedResult = 1020;
+                expect(bookingService.convertTimeToMinutesAfterMidnight(timeAsString)).not.toEqual(expectedResult);
+            });
+        });
+        
+        
+        
+        //   TEST convertDateToDbFormat METHOD */
+        describe("9 Testing convertMinutesAfterMidnightToTime", () => {
+            it("9a should return a number of 540", () => {
+                const unformattedDate = 'Tue Nov 30 2021 00:00:00 GMT+0100 (Central European Standard Time)';
+                const expectedResult = 'Tue Nov 30 2021';
+                expect(bookingService.convertDateToDbFormat(unformattedDate)).toEqual(expectedResult);
+                expect(typeof (bookingService.convertDateToDbFormat(unformattedDate))).toBe("string");
+            });
+
+            it("9b should return a string of '9:00'", () => {
+                const unformattedDate = 'Tue Nov 30 2021 00:00:00 GMT+0100 (Central European Standard Time)';
+                const expectedResult = 'Tue Nov 30 2021 00:00:00 GMT+0100 (Central European Standard Time)';
+                expect(bookingService.convertTimeToMinutesAfterMidnight(unformattedDate)).not.toEqual(expectedResult);
+            });
+        });
+        
+        
+        
+            // END OF BOOKING SERVICE TESTS
 
     })
     
     
- 
-
-
-
-
-
     
     it("should mock getAvailableTimesByDate method in BookingService class", async () => {
         //const bookingService: BookingService = new BookingService();
@@ -360,6 +418,7 @@ export const repositoryMockFactory: () => MockType<Repository<any>> = jest.fn(()
     create: jest.fn(),
     save: jest.fn(),
     length: jest.fn(),
+    where: jest.fn(),
     //getBookingsByDate: jest.fn()
 }));
 
