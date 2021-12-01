@@ -166,10 +166,12 @@ export class BookingService implements IBookingService {
             } else {
                 // Not authorised to delete this booking
                 console.log('SERVICE ERROR in deleteBooking: Not authorised to delete this booking');
+                return []; // NEW for testing - should be error
             }
         } else {
             // No booking at that time found
             console.log('SERVICE ERROR in deleteBooking: No booking at that time found');
+            return []; // NEW for testing - should be error
         }
     }
 
