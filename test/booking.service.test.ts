@@ -9,6 +9,7 @@ import {Test, TestingModule} from '@nestjs/testing';
 import {BookingService} from '../src/core/services/booking.service';
 import {BookingEntity} from '../src/infrastructure/data-source/entities/booking.entity';
 import {BookingModel} from '../src/core/models/booking.model';
+import {dateEnquiryModel} from '../src/api/dtos/date-enquiry.model';
 import {Repository} from "typeorm";
 import {getRepositoryToken} from "@nestjs/typeorm";
 
@@ -88,35 +89,92 @@ describe("-- Booking Service --", () => {
 
         
         //   TEST getAvailableTimesByDate METHOD */
+        //     async getAvailableTimesByDate(selectedDateAndDuration: dateEnquiryModel): Promise<string[]> {
+        describe("1 should test getBookingsByDate method using the booking repository", () => {
+            const dateEnquiry1: dateEnquiryModel = {
+                date: 'Tue Nov 16 2021',
+                duration: 60
+            }
+            
+            it("1a should return a string[] of times on the date: Thu Nov 18 2021", async () => {
+                bookingRepositoryMock.find.mockReturnValue(bookings);
+                
+                
+                
+                
+                
+                
+                const expectedResult = ['8:00', '9:00', '10:00', '12:00', '13:00', '13:30', '14:00', '14:40', '16:00', '17:00', '17:30'];
+                jest.spyOn(bookingService, "getAvailableTimesByDate").mockResolvedValue(expectedResult);
+                const receivedResult = await bookingService.getAvailableTimesByDate(dateEnquiry1);
+                expect(receivedResult).toEqual(expectedResult);
+                expect(receivedResult.length).toEqual(11);  // 
+            });  //
+        })
+    
+        describe("1b should test getBookingsByDate method using the booking repository", () => {
+            const dateEnquiry1:dateEnquiryModel = {
+                date: 'Tue Nov 16 2021',
+                duration: 30
+            }
+            it("1b should return a string[] of times on the date: Thu Nov 18 2021", async () => {
+                bookingRepositoryMock.find.mockReturnValue(bookings);
+                const expectedResult = ['8:00', '8:30', '9:00', '9:30','10:00', '10:30', '12:00', '13:00', '14:00', '16:00', '17:00'];
+                jest.spyOn(bookingService, "getAvailableTimesByDate").mockResolvedValue(expectedResult);
+                const receivedResult = await bookingService.getAvailableTimesByDate(dateEnquiry1);
+                expect(receivedResult).toEqual(expectedResult);
+                //expect(receivedResult.length).toEqual(1);  // 
+            });  // NOT working
+        })
+        
+        
+        
         //   TEST findAvailableSlotInWorkPeriod METHOD */
-        
-        
+        //     findAvailableSlotInWorkPeriod(startTime: number, finishTime: number, bookingSlotsNeeded: number, datesBookingTimesInMinutesAfterMidnight: number[]): string[] {
+            
+        describe("2 should test findAvailableSlotInWorkPeriod method using the booking repository", () => {
+                const startTime = 480
+                const finishTime = 660;
+                const bookingSlotsNeeded = 2;
+                const datesBookingTimesInMinutesAfterMidnight = [540, 570];
+           
+            it("2a should return a string[] of times",() => {
+                //bookingRepositoryMock.find.mockReturnValue(bookings);
+                const expectedResult = ['8:00', '10:00'];
+                //jest.spyOn(bookingService, "findAvailableSlotInWorkPeriod").mockResolvedValue(expectedResult);
+                const receivedResult = bookingService.findAvailableSlotInWorkPeriod(startTime, finishTime, bookingSlotsNeeded, datesBookingTimesInMinutesAfterMidnight);
+                expect(receivedResult).toEqual(expectedResult);
+                expect(receivedResult.length).toEqual(2);  // 
+            });  // Does this work?
+        })
 
+        
+    
         //   TEST getBookingsByDate METHOD */
-        
-        it("3a should return a BookingEntity[] of the mock booking on the date: Thu Nov 18 2021", async () => {
-            const bookingDate1 = 'Thu Nov 18 2021';
-            bookingRepositoryMock.find.mockReturnValue(bookings);
-            const expectedResult = [booking1];
-            jest.spyOn(bookingService, "getBookingsByDate").mockResolvedValue(expectedResult);
-            const receivedResult = await bookingService.getBookingsByDate(bookingDate1);
-            expect(receivedResult).toEqual(expectedResult);
-            expect(receivedResult.length).toEqual(1);  // 1 x 30 minutes
 
-        });  // WORKS!! maybe
+        describe("3 should test getBookingsByDate method using the booking repository", () => {
+            it("3a should return a BookingEntity[] of the mock booking on the date: Thu Nov 18 2021", async () => {
+                const bookingDate1 = 'Thu Nov 18 2021';
+                bookingRepositoryMock.find.mockReturnValue(bookings);
+                const expectedResult = [booking1];
+                jest.spyOn(bookingService, "getBookingsByDate").mockResolvedValue(expectedResult);
+                const receivedResult = await bookingService.getBookingsByDate(bookingDate1);
+                expect(receivedResult).toEqual(expectedResult);
+                expect(receivedResult.length).toEqual(1);  // 1 x 30 minutes
+            });  // WORKS!! maybe
 
-        
-        it("3b should return two BookingEntity' of the mock bookings on the date: Tue Nov 16 2021", async () => {
-            const bookingDate2 = 'Tue Nov 16 2021';
-            bookingRepositoryMock.find.mockReturnValue(bookings);
-            const expectedResult = [booking2a, booking2b];
-            jest.spyOn(bookingService, "getBookingsByDate").mockResolvedValue(expectedResult);
-            const receivedResult = await bookingService.getBookingsByDate(bookingDate2);
-            expect(receivedResult).toEqual(expectedResult);
-            expect(receivedResult.length).toEqual(2);  // 2 x 30 minutes
-            //expect(bookingService.getBookingsByDate).toBeCalledTimes(1);
-        });   // WORKS!! maybe
-        
+
+            it("3b should return two BookingEntity' of the mock bookings on the date: Tue Nov 16 2021", async () => {
+                const bookingDate2 = 'Tue Nov 16 2021';
+                bookingRepositoryMock.find.mockReturnValue(bookings);
+                const expectedResult = [booking2a, booking2b];
+                jest.spyOn(bookingService, "getBookingsByDate").mockResolvedValue(expectedResult);
+                const receivedResult = await bookingService.getBookingsByDate(bookingDate2);
+                expect(receivedResult).toEqual(expectedResult);
+                expect(receivedResult.length).toEqual(2);  // 2 x 30 minutes
+                //expect(bookingService.getBookingsByDate).toBeCalledTimes(1);
+            });   // WORKS!! maybe
+        })
         
         it("3c should return an empty BookingModel[] as no mock booking on the date: Wed Nov 17 2021", async () => {
             const bookingDate3 = 'Wed Nov 17 2027';
@@ -187,7 +245,6 @@ describe("-- Booking Service --", () => {
         
          //   TEST deleteBooking METHOD */
         
-        
         describe("5a should delete a BookingModel[] of the mock booking to delete", () => {
             const bookingToDelete2 = {
                 id: '',
@@ -237,26 +294,26 @@ describe("-- Booking Service --", () => {
         })
 
         describe("5c should return an empty BookingModel[]as the confirmation email is incorrect", () => {
-                const bookingToDelete3 = {
-                id: '',
-                date: 'Thu Nov 18 2021',
-                time: '10:00',
-                service: '',
-                email: 'crazyman@test.com',  // wrong email. Should return []
-                phone: 12345678,
-                address: '',
-                city: '',
-                postcode: 0,
-                notes: '',
-                duration: 30,
-            }
+            const bookingToDelete3 = {
+            id: '',
+            date: 'Thu Nov 18 2021',
+            time: '10:00',
+            service: '',
+            email: 'crazyman@test.com',  // wrong email. Should return []
+            phone: 12345678,
+            address: '',
+            city: '',
+            postcode: 0,
+            notes: '',
+            duration: 30,
+        }
 
-            it("5c should return an empty BookingModel[]as the confirmation email is incorrect", async () => {
-                const expectedResult: BookingModel[] = [];
-                jest.spyOn(bookingService, "deleteBooking").mockResolvedValue(expectedResult);
-                const receivedResult = await bookingService.deleteBooking(bookingToDelete3);
-                expect(receivedResult).toEqual(expectedResult);
-                expect(receivedResult.length).toEqual(0);
+        it("5c should return an empty BookingModel[]as the confirmation email is incorrect", async () => {
+            const expectedResult: BookingModel[] = [];
+            jest.spyOn(bookingService, "deleteBooking").mockResolvedValue(expectedResult);
+            const receivedResult = await bookingService.deleteBooking(bookingToDelete3);
+            expect(receivedResult).toEqual(expectedResult);
+            expect(receivedResult.length).toEqual(0);
             });
         })
 
@@ -468,6 +525,7 @@ export const repositoryMockFactory: () => MockType<Repository<any>> = jest.fn(()
     save: jest.fn(),
     length: jest.fn(),
     where: jest.fn(),
+    //not: jest.fn(),
     //getBookingsByDate: jest.fn()
 }));
 
