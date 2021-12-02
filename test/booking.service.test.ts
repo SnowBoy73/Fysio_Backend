@@ -42,6 +42,11 @@ describe("-- Booking Service --", () => {
     });
 
 
+    afterEach(() => {
+        jest.clearAllMocks();
+    });
+
+    
 
     describe("should populate the booking repository with the following BookingModels", () => {
         const booking1 = new BookingEntity();  // Mock repository entry 1
@@ -90,41 +95,48 @@ describe("-- Booking Service --", () => {
         
         //   TEST getAvailableTimesByDate METHOD */
         //     async getAvailableTimesByDate(selectedDateAndDuration: dateEnquiryModel): Promise<string[]> {
+        //startTime: string = '8:00';
+        //breakStart: string = '11:00';  // lunch from 11:00 until 12:00
+        //breakFinish: string = '12:00';
+        //finishTime: string = '18:00';
+        
         describe("1 should test getBookingsByDate method using the booking repository", () => {
             const dateEnquiry1: dateEnquiryModel = {
-                date: 'Tue Nov 16 2021',
-                duration: 60
+                date: 'Thu Nov 18 2021 00:00:00 GMT+0100 (Central European Standard Time)',
+                duration: 60  // one hour booking (2 x 30 mins)
             }
-            
             it("1a should return a string[] of times on the date: Thu Nov 18 2021", async () => {
-                bookingRepositoryMock.find.mockReturnValue(bookings);
-                
-                
-                
-                
-                
-                
-                const expectedResult = ['8:00', '9:00', '10:00', '12:00', '13:00', '13:30', '14:00', '14:40', '16:00', '17:00', '17:30'];
-                jest.spyOn(bookingService, "getAvailableTimesByDate").mockResolvedValue(expectedResult);
+                bookingRepositoryMock.find.mockReturnValue(bookings);  // 1 x 30 min booking at 10:00
+                const expectedResult = ['8:00', '8:30', '9:00', '12:00', '12:30', '13:00', '13:30', '14:00', '16:00', '16:30', '17:00'];
                 const receivedResult = await bookingService.getAvailableTimesByDate(dateEnquiry1);
                 expect(receivedResult).toEqual(expectedResult);
-                expect(receivedResult.length).toEqual(11);  // 
-            });  //
+                expect(receivedResult.length).toEqual(11);
+                // Testing negative results
+                const falseResult1 =  ['7:00', '7:30', '9:00', '12:00', '12:30', '13:00', '13:30', '14:00', '16:00', '16:30', '17:00'];
+                expect(receivedResult).not.toEqual(falseResult1);  // Same [] length, but wrong times (7:00 and 7:30)
+                const falseResult2 =  ['8:00', '8:30', '12:00', '12:30', '13:00', '13:30', '14:00', '16:00', '16:30', '17:00'];
+                expect(receivedResult).not.toEqual(falseResult2);  // Correct times, but missing '9:00'
+            });
+            jest.clearAllMocks();
         })
     
         describe("1b should test getBookingsByDate method using the booking repository", () => {
-            const dateEnquiry1:dateEnquiryModel = {
-                date: 'Tue Nov 16 2021',
-                duration: 30
+            const dateEnquiry2: dateEnquiryModel = {
+                date: 'Tue Nov 16 2021 00:00:00 GMT+0100 (Central European Standard Time)',
+                duration: 30  // half hour booking (1 x 30 mins)
             }
-            it("1b should return a string[] of times on the date: Thu Nov 18 2021", async () => {
-                bookingRepositoryMock.find.mockReturnValue(bookings);
-                const expectedResult = ['8:00', '8:30', '9:00', '9:30','10:00', '10:30', '12:00', '13:00', '14:00', '16:00', '17:00'];
-                jest.spyOn(bookingService, "getAvailableTimesByDate").mockResolvedValue(expectedResult);
-                const receivedResult = await bookingService.getAvailableTimesByDate(dateEnquiry1);
+            it("1b should return a string[] of available times on the date: Tue Nov 16 2021", async () => {
+                bookingRepositoryMock.find.mockReturnValue([booking2a, booking2b]); //bookings);  // Mocks not resetting properly, so had to remove booking1 
+                const expectedResult = ['8:00', '8:30', '9:00', '9:30', '10:00', '10:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '16:00', '16:30', '17:00', '17:30'];
+                const receivedResult = await bookingService.getAvailableTimesByDate(dateEnquiry2);
                 expect(receivedResult).toEqual(expectedResult);
-                //expect(receivedResult.length).toEqual(1);  // 
-            });  // NOT working
+                expect(receivedResult.length).toEqual(16);  
+                // Testing negative results
+                const falseResult1 = ['8:20', '9:50', '11:11', '9:30', '10:00', '10:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '16:00', '16:30', '17:00', '17:30'];
+                expect(receivedResult).not.toEqual(falseResult1);  // Same [] length, but wrong times
+                const falseResult2 = ['8:30', '9:00', '9:30', '10:00', '10:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '16:00', '16:30', '17:00', '17:30'];
+                expect(receivedResult).not.toEqual(falseResult2);  // Correct times, but missing '8:00'
+            });
         })
         
         
@@ -133,22 +145,42 @@ describe("-- Booking Service --", () => {
         //     findAvailableSlotInWorkPeriod(startTime: number, finishTime: number, bookingSlotsNeeded: number, datesBookingTimesInMinutesAfterMidnight: number[]): string[] {
             
         describe("2 should test findAvailableSlotInWorkPeriod method using the booking repository", () => {
-                const startTime = 480
-                const finishTime = 660;
-                const bookingSlotsNeeded = 2;
-                const datesBookingTimesInMinutesAfterMidnight = [540, 570];
-           
+            // Testing morning period with 1 hour booking
+            const startTime = 480;  // is 8:00 in minutes after midnight
+            const finishTime = 660; // is 11:00 in minutes after midnight
+            const bookingSlotsNeeded = 1; // Half hour booking - 2 x 30 minute slots
+            const datesBookingTimesInMinutesAfterMidnight = [540, 570];  // Represents an hour long booking at 9:00 (which includes 9:30)
             it("2a should return a string[] of times",() => {
-                //bookingRepositoryMock.find.mockReturnValue(bookings);
-                const expectedResult = ['8:00', '10:00'];
-                //jest.spyOn(bookingService, "findAvailableSlotInWorkPeriod").mockResolvedValue(expectedResult);
+                const expectedResult = ['8:00', '8:30', '10:00', '10:30'];  // Available times for an hour long booking
                 const receivedResult = bookingService.findAvailableSlotInWorkPeriod(startTime, finishTime, bookingSlotsNeeded, datesBookingTimesInMinutesAfterMidnight);
                 expect(receivedResult).toEqual(expectedResult);
-                expect(receivedResult.length).toEqual(2);  // 
-            });  // Does this work?
+                expect(receivedResult.length).toEqual(4);
+                // Testing negative results
+                const falseResult1 = ['8:30', '9:30', '10:00', '10:30'];
+                expect(receivedResult).not.toEqual(falseResult1);  // Same [] length, but unavailable time at 9:30
+                const falseResult2 = ['8:00', '8:30', '10:00', '10:30', '11:00'];
+                expect(receivedResult).not.toEqual(falseResult2);  // Correct times, but added '11:00' which is unavailable (for lunch)
+            });
         })
 
-        
+        describe("2 should test findAvailableSlotInWorkPeriod method using the booking repository", () => {
+            // Testing afternoon period with half hour booking
+            const startTime = 720;  // is 12:00 in minutes after midnight
+            const finishTime = 1080; // is 11:00 in minutes after midnight
+            const bookingSlotsNeeded = 2; // An hour booking - 2 x 30 minute slots
+            const datesBookingTimesInMinutesAfterMidnight = [750, 780, 900, 1050];  // Represents bookings at 12:30, 13:00, 15:00 and 17.30
+            it("2b should return a string[] of times",() => {
+                const expectedResult = ['13:30', '14:00', '15:30', '16:00', '16:30'];  // Available times for an hour long booking
+                const receivedResult = bookingService.findAvailableSlotInWorkPeriod(startTime, finishTime, bookingSlotsNeeded, datesBookingTimesInMinutesAfterMidnight);
+                expect(receivedResult).toEqual(expectedResult);
+                expect(receivedResult.length).toEqual(5);
+                // Testing negative results
+                const falseResult1 = ['8:30', '9:30'];
+                //expect(receivedResult).not.toEqual(falseResult1);  // Same [] length, but unavailable times
+                const falseResult2 = ['8:00', '10:00', , '11:00'];
+                //expect(receivedResult).not.toEqual(falseResult2);  // Correct times, but added '11:00' which is unavailable (for lunch)
+            });
+        })
     
         //   TEST getBookingsByDate METHOD */
 
