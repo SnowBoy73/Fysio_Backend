@@ -25,7 +25,6 @@ import {AdminService} from "./core/services/admin.service";
   ],
   controllers: [], // AdminController
   providers: [
-     BookingModule //, AdminModule, // AdminService
   ],
 })
 export class AppModule {}

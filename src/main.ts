@@ -3,11 +3,13 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {cors: true});
   app.enableCors({
-    origin: true,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    origin: "http://localhost:4200",
+    credentials: true
   });
+  
+  app.enableCors();
 
   const configService: ConfigService = app.get(ConfigService);
   await app.listen(configService.get('PORT') || 8080);  // best-playz
