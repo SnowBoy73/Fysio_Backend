@@ -17,8 +17,13 @@ import { BookingDto } from '../dtos/booking.dto';
 import { BookingModel } from '../../core/models/booking.model';
 import {dateEnquiryDto} from "../dtos/date-enquiry.dto";
 import {dateEnquiryModel} from "../dtos/date-enquiry.model";
-
-@WebSocketGateway()
+ const options={ 
+     cors: {
+         origin:'http://localhost:4200',
+             credetials: true
+     }
+}
+@WebSocketGateway(options)
 export class BookingGateway
     implements OnGatewayConnection, OnGatewayDisconnect {
     constructor(

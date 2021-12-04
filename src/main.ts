@@ -3,14 +3,14 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true});
   app.enableCors({
-    origin: true,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    origin: 'http://localhost:4200',
+    credentials: true
   });
+  app.enableCors();
 
-  const configService: ConfigService = app.get(ConfigService);
-  await app.listen(configService.get('PORT') || 3004);  //  from best-playz
+  await app.listen( 3004);  //  from best-playz
  /* await app.listen(process.env.PORT || 8080, function(){
     console.log("Express server listening on port %d in %s mode", this.address().port); 
   }); */  // https://shivamv12.medium.com/deploy-nestjs-on-heroku-in-5-simple-steps-cc7625ea6167

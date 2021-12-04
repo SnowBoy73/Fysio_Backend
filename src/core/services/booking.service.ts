@@ -58,6 +58,7 @@ export class BookingService implements IBookingService {
             return allAvailableBookingTimesOnASelectedDate;
         } else {
             console.log('not a valid date selected');
+            return [];
         }
     }
 
