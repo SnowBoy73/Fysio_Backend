@@ -95,7 +95,9 @@ export class BookingService implements IBookingService {
         const bookingsOnSelectedDate: BookingEntity[] = await this.bookingRepository.find({
             where: {date: selectedDate},
         });
-         //console.log('-----bookingsOnSelectedDate.length = ' + bookingsOnSelectedDate.toString() );
+         console.log('-----bookingsOnSelectedDate.length = ' + bookingsOnSelectedDate.toString() );
+        console.log('-----bookingsOnSelectedDate.selectedDate = ' + selectedDate );
+
         //  const updatedstock: Stock = JSON.parse(JSON.stringify(stockDB));  // NEED TO PARSE???
         return bookingsOnSelectedDate;
    }
