@@ -21,12 +21,12 @@ import {AdminEntity} from "../entities/admin.entity";
                 database: configService.get('POSTGRES_DB'),
                 entities: [BookingEntity, ServicesEntity, TimetableEntity, AdminEntity], // , AdminEntity
                 synchronize: true, //true for DEV, but deletes data if DB is shutdown, // false for PRODUCTION
-                /*ssl: true, // New from Lars
+                ssl: true, // New from Lars
                 extra: {
                   ssl: {
                     rejectUnauthorized: false,
                   },
-                }, // */
+                }, // 
             }),
         }),
     ],
