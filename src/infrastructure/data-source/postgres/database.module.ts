@@ -2,6 +2,9 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BookingEntity } from '../entities/booking.entity';
+import {ServicesEntity} from "../entities/services.entitiy";
+import {TimetableEntity} from "../entities/timetable.entity";
+import {AdminEntity} from "../entities/admin.entity";
 //import {AdminEntity} from "../entities/admin.entity";
 
 @Module({
@@ -16,14 +19,15 @@ import { BookingEntity } from '../entities/booking.entity';
                 username: configService.get('POSTGRES_USER'),
                 password: configService.get('POSTGRES_PASSWORD'),
                 database: configService.get('POSTGRES_DB'),
-                entities: [BookingEntity], // , AdminEntity
+                entities: [BookingEntity, ServicesEntity, TimetableEntity, AdminEntity], // , AdminEntity
                 synchronize: true, //true for DEV, but deletes data if DB is shutdown, // false for PRODUCTION
                 ssl: true, // New from Lars
                 extra: {
                   ssl: {
                     rejectUnauthorized: false,
                   },
-                }, 
+
+                }, // 
             }),
         }),
     ],

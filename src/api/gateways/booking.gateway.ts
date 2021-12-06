@@ -17,11 +17,13 @@ import { BookingDto } from '../dtos/booking.dto';
 import { BookingModel } from '../../core/models/booking.model';
 import {dateEnquiryDto} from "../dtos/date-enquiry.dto";
 import {dateEnquiryModel} from "../dtos/date-enquiry.model";
- const options={ 
-     cors: {
-         origin:'http://localhost:4200',
-             credetials: true
-     }
+
+import {ok} from "assert";
+const options = {
+    cors:{
+        origin: 'http://localhost:4200',
+        credentials: true
+    }
 }
 @WebSocketGateway(options)
 export class BookingGateway
@@ -42,12 +44,16 @@ export class BookingGateway
         console.log('selectedDateAndDuration.duration = ' +selectedDateAndDuration.duration);
         try {
             let selectedDateAndDurationModel: dateEnquiryModel = JSON.parse(JSON.stringify(selectedDateAndDuration)); // mock
-        let availableTimes = await this.bookingService.getAvailableTimesByDate(selectedDateAndDurationModel);
-        console.log('GATEWAY: availableTimes', availableTimes);
-        this.server.emit('availableTimes', availableTimes);
+
+            let availableTimes = await this.bookingService.getAvailableTimesByDate(selectedDateAndDurationModel);
+            console.log('GATEWAY: availableTimes', availableTimes);
+            this.server.emit('availableTimes', availableTimes);
+       /* } then {
+        } finally { // ok; */
+        
         } catch (e) {
             console.log('GATEWAY ERROR: caught in postSelectedDate');
-            //client._error(e.message);  // PROBLEM HERE
+            // client._error(e.message);  // PROBLEM HERE ??
         }
     }
         
@@ -79,8 +85,8 @@ export class BookingGateway
             console.log('newBooking city: ' + newBooking.city);
             console.log('newBooking postcode: ' + newBooking.postcode);
             console.log('newBooking notes: ' + newBooking.notes);
-            console.log(' duration: ' + newBookingDto.duration);
-            let addedBookings = await this.bookingService.addBooking(newBooking, newBookingDto.duration);
+            console.log('newBooking duration: ' + newBooking.duration);
+            let addedBookings = await this.bookingService.addBooking(newBooking);
             if (addedBookings == null) {
                 console.log('GATEWAY: booking is null: NO new booking emitted');
             } else {
@@ -89,77 +95,32 @@ export class BookingGateway
             }
         } catch (e) {
             console.log('GATEWAY ERROR: caught in postBooking');
-            //client._error(e.message);  // PROBLEM HERE
+
+            //client._error(e.message);  // PROBLEM HERE ??
         }
     }
     
-/*
-    @SubscribeMessage('requestDateBookings')
+
+    @SubscribeMessage('deleteBooking')
     async handleGetDateBookingsEvent(
-        @MessageBody() dateDto: DateModel,
+        @MessageBody() bookingToDeleteDto: BookingDto,
         @ConnectedSocket() client: Socket,
     ): Promise<void> {
-        console.log('handleGetHighscoreCommentsEvent called');
+        console.log('GATEWAY: deleteBooking called');
         try {
-            const dateModel: DateModel = JSON.parse(
-                JSON.stringify(dateDto ),
+            const bookingToDelete: BookingModel = JSON.parse(
+                JSON.stringify(bookingToDeleteDto),
             );
-            const dateBookings: BookingModel[] = await this.bookingService.getBookingsByDate(dateModel.date);
-            console.log(dateBookings.length, ' dateBookings found ');
-            this.server.emit('dateBookings', dateBookings);
+            const deletedBooking: BookingModel[] = await this.bookingService.deleteBooking(bookingToDelete);
+            console.log(deletedBooking.length, ' deletedBooking slots found ');
+            this.server.emit('deleteBooking', deletedBooking);
         } catch (e) {
-            client._error(e.message);
+            console.log('GATEWAY ERROR: caught in deleteBooking');
+            // client._error(e.message);  // PROBLEM HERE ??
         }
     }
 
-    /*
-    @SubscribeMessage('login')
-    async handleLoginEvent(
-        @MessageBody() loginClientDto: loginDto,
-        @ConnectedSocket() client: Socket,
-    ): Promise<void> {
-        console.log('DTO nickname ', loginCommentClientDto.nickname);
-        console.log('handleLoginEvent called');
-
-        // Return Client to controller for REST api
-        try {
-            let newClient: ClientModel = JSON.parse(
-                JSON.stringify(loginCommentClientDto),
-            );
-            console.log('newClient ', newClient);
-            newClient = await this.commentService.addClient(newClient);
-            console.log('newClient2 ', newClient);
-            const clients = await this.commentService.getClients();
-            console.log('clients ', clients);
-            const welcome: WelcomeDto = {
-                clients: clients,
-                client: newClient,
-                comments: null, // should remove from welcomeDto?
-            };
-            console.log('welcomeDto ', welcome);
-            console.log('All nicknames ', clients);
-            client.emit('welcome', welcome);
-            this.server.emit('clients', clients);
-        } catch (e) {
-            client.error(e.message);
-        }
-    }
-
-    @SubscribeMessage('logout')
-    async handleLogoutEvent(
-        @MessageBody() loggedInUserId: string,
-        @ConnectedSocket() client: Socket,
-    ): Promise<void> {
-        console.log('comment Gate logout id: ', loggedInUserId);
-
-        // Return Client to controller for REST api
-        try {
-            await this.commentService.deleteClient(loggedInUserId);
-        } catch (e) {
-            client.error(e.message);
-        }
-    }
-*/
+    
     async handleConnection(client: Socket, ...args: any[]): Promise<any> {
         console.log('Client Connect', client.id);
         client.emit('schedule', this.bookingService.getAvailableTimesByDate(null)); // todays date??

@@ -8,7 +8,10 @@ export class AdminEntity {
     @Column({ unique: true })
     public  username: string;
 
-    @Column({ unique: true })
+    @Column({ unique: false })
     public password: string;
+
+    @Column({ unique: false })
+    public bookingSlotDuration: number;
 
 }
