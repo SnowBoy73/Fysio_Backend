@@ -20,7 +20,7 @@ import {dateEnquiryModel} from "../dtos/date-enquiry.model";
 import {ok} from "assert";
 const options = {
     cors:{
-        origin: 'http://localhost:4200',
+        origin: ['http://localhost:4200', 'https://fysio-performance-front.web.app/bookings'],  // NEW
         credentials: true
     }
 }
