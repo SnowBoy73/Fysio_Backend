@@ -5,8 +5,10 @@ import { ConfigService } from '@nestjs/config';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {cors: true});
   app.enableCors({
-    origin: "http://localhost:4200",
-    credentials: true
+   /* origin: "http://localhost:4200",
+    credentials: true */  // From Nedas
+    origin: true,  // from BestPlays
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',  // from BestPlays
   });
   
   app.enableCors();
