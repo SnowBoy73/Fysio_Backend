@@ -20,7 +20,7 @@ import {AdminEntity} from "../entities/admin.entity";
                 password: configService.get('POSTGRES_PASSWORD'),
                 database: configService.get('POSTGRES_DB'),
                 entities: [BookingEntity, ServicesEntity, TimetableEntity, AdminEntity],
-                synchronize: false, //true for DEV, but deletes data if DB is shutdown, // false for PRODUCTION
+                synchronize: true, //true for DEV, but deletes data if DB is shutdown, // false for PRODUCTION
                 ssl: true, // Remove this for local Docker to works !!! Enable for deployment
                 extra: {
                   ssl: {
