@@ -93,6 +93,8 @@ export class BookingService implements IBookingService {
 
 
     async getBookingsByDate(selectedDate: string): Promise<BookingModel[]> {
+        console.log('SERVICE: getBookingsByDate started');
+
         const bookingsOnSelectedDate: BookingEntity[] = await this.bookingRepository.find({
             where: {date: selectedDate},
         });
