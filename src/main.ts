@@ -11,10 +11,10 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',  // from BestPlays
   });
   
-  //app.enableCors();  // TEMP removed
+  app.enableCors();
 
   const configService: ConfigService = app.get(ConfigService);
-  await app.listen(configService.get('PORT') || 3004);  // best-playz
+  await app.listen(configService.get('PORT') || 8080);
   //await app.listen(process.env.PORT || 8080); // https://shivamv12.medium.com/deploy-nestjs-on-heroku-in-5-simple-steps-cc7625ea6167
 }
 bootstrap();
