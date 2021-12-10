@@ -1,7 +1,7 @@
 import {ServicesModel} from "../models/services.model";
 
-export const ISharedServiceProvider = 'ISharedServiceProvider';
-export interface  ISharedService {
+export const IServicesServiceProvider = 'IServicesServiceProvider';
+export interface  IServicesService {
 
     getAllServices(): Promise<ServicesModel[]>;
     

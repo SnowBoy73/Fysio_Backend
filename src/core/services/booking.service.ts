@@ -1,10 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { BookingModel } from '../models/booking.model';
 import { IBookingService, IBookingServiceProvider } from "../primary-ports/booking.service.interface";
-import { InjectRepository } from '@nestjs/typeorm';
 import { BookingEntity } from '../../infrastructure/data-source/entities/booking.entity';
 import { Repository } from 'typeorm';
-// import {async, forkJoin} from "rxjs";
 import {dateEnquiryModel} from "../../api/dtos/date-enquiry.model";
 
 @Injectable()

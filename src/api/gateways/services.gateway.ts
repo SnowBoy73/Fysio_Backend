@@ -9,8 +9,8 @@ import {
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { Inject } from '@nestjs/common';
-import {ISharedService, ISharedServiceProvider} from "../../core/primary-ports/shared.service.interface";
 import {ServicesDto} from "../dtos/services.dto";
+import {IServicesService, IServicesServiceProvider} from "../../core/primary-ports/services.service.interface";
 const options = {
     cors:{
         origin: ['http://localhost:4200', 'https://fysio-performance-front.web.app/bookings'],  // NEW
@@ -18,20 +18,17 @@ const options = {
     }
 }
 @WebSocketGateway(options)
-export class SharedGateway
+export class ServicesGateway
     implements OnGatewayConnection, OnGatewayDisconnect {
     constructor(
-        @Inject(ISharedServiceProvider) private sharedService: ISharedService,
-    ) {
-    }
-
-
+        @Inject(IServicesServiceProvider) private sharedService: IServicesService,
+    ) {}
+    
     @WebSocketServer() server;
 
-
-    @SubscribeMessage('getServices')
+    @SubscribeMessage('getAllServices')
     async handleGetServicesEvent(
-        //@MessageBody() selectedDateAndDuration: dateEnquiryDto,
+        //@MessageBody() //selectedDateAndDuration: dateEnquiryDto,
         @ConnectedSocket() client: Socket,
     ): Promise<void> {
         console.log('SHARED GATEWAY: getServices');
