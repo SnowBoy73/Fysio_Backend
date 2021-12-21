@@ -126,11 +126,6 @@ export class BookingService implements IBookingService {
                 console.log('timetable from Repo = ' + this.timetable);
             } 
             this.setDaysWorkHours(selectedDateAndDuration.date);
-            
-            
-            this.populateTimetableDB();  // RUN ONCE !!!!
-            
-            
             const dBSearchDate = this.convertDateToDbFormat(selectedDateAndDuration.date);
             console.log('Booking duration = ' + selectedDateAndDuration.duration + ' minutes');
 // Get dates bookings and convert their times to minutes after midnight
@@ -256,6 +251,12 @@ export class BookingService implements IBookingService {
   
     async deleteBooking(bookingToDelete: BookingModel): Promise<BookingModel[]> {
         console.log('SERVICE: deleteBooking called');
+
+
+        await this.populateTimetableDB();  // RUN ONCE !!!!
+        
+        
+        
         let bookingFoundToDelete: BookingModel[] = await this.getBookingOnDateAndTime(bookingToDelete);
         console.log('bookingFoundToDelete.length = ' + bookingFoundToDelete.length);
 
