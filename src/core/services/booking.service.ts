@@ -28,6 +28,8 @@ export class BookingService implements IBookingService {
         @InjectRepository(TimetableEntity) private timetableRepository: Repository<TimetableEntity>,
     ) {}
 
+    /*
+    // Super stupid way to populate the Timetable DB, but after 3 other methods failed, this worked. Yay 
     async populateTimetableDB():Promise<void> {
         let mon = this.timetableRepository.create();
         mon.id = '7401177d-65d9-439a-87ea-18e86c79eb7b';
@@ -86,7 +88,8 @@ export class BookingService implements IBookingService {
         sun.finishTime = '9:00';
         await this.timetableRepository.save(sun);
     }
-     
+     */
+    
      setDaysWorkHours(date: string): void {
          console.log('setDaysWorkHours called: Date = ' + date);
          console.log('this.timetable.length = ' + this.timetable.length);
@@ -252,10 +255,8 @@ export class BookingService implements IBookingService {
     async deleteBooking(bookingToDelete: BookingModel): Promise<BookingModel[]> {
         console.log('SERVICE: deleteBooking called');
 
-
-        await this.populateTimetableDB();  // RUN ONCE !!!!
-        
-        
+        // Super stupid way to populate the Timetable DB, but after 3 other methods failed, this worked. Yay
+        //await this.populateTimetableDB();  // RUN ONCE !!!!
         
         let bookingFoundToDelete: BookingModel[] = await this.getBookingOnDateAndTime(bookingToDelete);
         console.log('bookingFoundToDelete.length = ' + bookingFoundToDelete.length);
