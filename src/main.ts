@@ -13,10 +13,8 @@ async function bootstrap() {
   });
   
   app.enableCors();
-
-  await app.listen( 3004);  //  from best-playz
- /* await app.listen(process.env.PORT || 8080, function(){
-    console.log("Express server listening on port %d in %s mode", this.address().port); 
-  }); */  // https://shivamv12.medium.com/deploy-nestjs-on-heroku-in-5-simple-steps-cc7625ea6167
+  const configService: ConfigService = app.get(ConfigService);
+  await app.listen(configService.get('PORT') || 8080);
+  //await app.listen(process.env.PORT || 8080); // https://shivamv12.medium.com/deploy-nestjs-on-heroku-in-5-simple-steps-cc7625ea6167
 }
 bootstrap();

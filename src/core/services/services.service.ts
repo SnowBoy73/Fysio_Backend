@@ -1,7 +1,7 @@
-import {Injectable} from "@nestjs/common";
+import {Inject, Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
-import {IServicesService} from "../primary-ports/services.service.interface";
+import {IServicesService, IServicesServiceProvider} from "../primary-ports/services.service.interface";
 import {ServicesEntity} from "../../infrastructure/data-source/entities/services.entitiy";
 import {ServicesModel} from "../models/services.model";
 
@@ -13,7 +13,11 @@ export class ServicesService implements IServicesService {
     ) {}
 
     async getAllServices(): Promise<ServicesModel[]> {
-        return null; // mock
+        console.log('SHARED SERVICE: getAllServices started');
+        const allServices: ServicesEntity[] = await this.servicesRepository.find();
+        console.log('-----allServices.length = ' + allServices.toString() );
+        return allServices;
+        //return null; // mock
     }
 
 }

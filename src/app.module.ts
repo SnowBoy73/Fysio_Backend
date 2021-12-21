@@ -1,14 +1,22 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { DatabaseModule } from './infrastructure/data-source/postgres/database.module';
 import * as Joi from '@hapi/joi';
-import { AdminController } from './api/controllers/admin.controller';
-//import { AdminModule } from './api/admin.module';
+import { DatabaseModule } from './infrastructure/data-source/postgres/database.module';
 import { BookingModule } from './api/booking.module';
-import {AdminService} from "./core/services/admin.service";
+import { ServicesModule } from './api/services.module';
+
 
 @Module({
   imports: [
+    /*
+      TypeOrmModule.forFeature(
+        [ServicesEntity, BookingEntity , TimetableEntity, AdminEntity],
+    ),
+*/
+    //TypeOrmModule.forRoot(),
+    BookingModule,
+    DatabaseModule,
+    ServicesModule,
     //AdminModule,
     ConfigModule.forRoot({
       validationSchema: Joi.object({
@@ -23,8 +31,7 @@ import {AdminService} from "./core/services/admin.service";
     DatabaseModule,
     BookingModule,
   ],
-  controllers: [], // AdminController
-  providers: [
-  ],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

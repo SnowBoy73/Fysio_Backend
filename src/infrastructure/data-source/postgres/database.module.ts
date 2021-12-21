@@ -21,7 +21,7 @@ import {AdminEntity} from "../entities/admin.entity";
                 database: configService.get('POSTGRES_DB'),
                 entities: [BookingEntity, ServicesEntity, TimetableEntity, AdminEntity],
                 synchronize: true,  // MUST be TRUE for PRODUCTION (deployed)
-                ssl: true, // Remove this for local Docker to works !!! Enable for deployment
+                /* ssl: true, // Remove this for local Docker to work !!! Enable for deployment
                 extra: {
                   ssl: {
                     rejectUnauthorized: false,

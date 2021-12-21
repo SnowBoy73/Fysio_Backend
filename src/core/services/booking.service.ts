@@ -1,29 +1,75 @@
 import { Inject, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { BookingModel } from '../models/booking.model';
 import { IBookingService, IBookingServiceProvider } from "../primary-ports/booking.service.interface";
-import { InjectRepository } from '@nestjs/typeorm';
 import { BookingEntity } from '../../infrastructure/data-source/entities/booking.entity';
-import { Repository } from 'typeorm';
-// import {async, forkJoin} from "rxjs";
 import {dateEnquiryModel} from "../../api/dtos/date-enquiry.model";
+import {TimetableEntity} from "../../infrastructure/data-source/entities/timetable.entity";
 
 @Injectable()
 export class BookingService implements IBookingService {
     availableTimes: string[];
+    timetable: TimetableEntity[] = null;
+    /* MOCK
     startTime: string = '8:00'; // mock - will fetch from timetable DB table
     breakStart: string = '11:00'; // mock - will fetch from timetable DB table
     breakFinish: string = '12:00'; // mock - will fetch from timetable DB table
     finishTime: string = '18:00'; // mock - will fetch from timetable DB table
+     */
+    startTime: string = '';
+    breakStart: string = '';
+    breakFinish: string = '';
+    finishTime: string = '';
     bookingSlotDuration: number = 30;  // minutes in a booking slot - get from admin table in DB later
-    
+
     constructor(
         @InjectRepository(BookingEntity) private bookingRepository: Repository<BookingEntity>,
+        @InjectRepository(TimetableEntity) private timetableRepository: Repository<TimetableEntity>,
     ) {}
 
     
+     
+     setDaysWorkHours(date: string): void {
+         console.log('setDaysWorkHours called: Date = ' + date);
+         console.log('this.timetable.length = ' + this.timetable.length);
+
+         let dayFound: boolean = false;
+         for (let i = 0; i < this.timetable.length; i++) {
+             let dayToCheck: TimetableEntity = this.timetable[i];
+             let dayOfBooking = date.split(' ')[0];  // get day from timetable entity
+             console.log('dayOfBooking = ' + dayOfBooking);
+
+             if(dayToCheck.day == dayOfBooking) {
+                 this.startTime = dayToCheck.startTime;
+                 this.breakStart = dayToCheck.breakStart;
+                 this.breakFinish = dayToCheck.breakFinish;
+                 this.finishTime = dayToCheck.finishTime;
+                 let dayFound = true;
+             }
+         }
+         if (dayFound == false) {
+             console.log('ERROR: dayOfBooking NOT FOUND - please check DB');
+             //throw Error;
+         }
+        return null;
+    }
+    
+    
     async getAvailableTimesByDate(selectedDateAndDuration: dateEnquiryModel): Promise<string[]> {
         if (selectedDateAndDuration != null) {
-            console.log('Service: getAvailableTimesByDate');
+            
+            console.log('this.timetable = ' + this.timetable);
+            console.log('selectedDateAndDuration.date xx= ' + selectedDateAndDuration.date);
+
+            if (this.timetable == null) {
+                console.log('Fetching timetable from Repo' );
+
+                this.timetable = await this.timetableRepository.find({});
+                console.log('timetable from Repo = ' + this.timetable);
+            } 
+            this.setDaysWorkHours(selectedDateAndDuration.date);
+            
             const dBSearchDate = this.convertDateToDbFormat(selectedDateAndDuration.date);
             console.log('Booking duration = ' + selectedDateAndDuration.duration + ' minutes');
 // Get dates bookings and convert their times to minutes after midnight
