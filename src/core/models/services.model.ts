@@ -1,5 +1,5 @@
 export interface ServicesModel {
-    id: string;  // needed?
+    id: string;
     name: string;
     duration: string;
     hourlyRate: number;

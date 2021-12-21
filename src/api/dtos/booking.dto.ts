@@ -1,4 +1,5 @@
 export interface BookingDto {
+    id: string;
     date: string;
     time: string;
     service: string;
