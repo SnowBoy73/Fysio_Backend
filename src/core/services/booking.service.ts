@@ -28,7 +28,64 @@ export class BookingService implements IBookingService {
         @InjectRepository(TimetableEntity) private timetableRepository: Repository<TimetableEntity>,
     ) {}
 
-    
+    async populateTimetableDB():Promise<void> {
+        let mon = this.timetableRepository.create();
+        mon.id = '7401177d-65d9-439a-87ea-18e86c79eb7b';
+        mon.day = 'Mon';
+        mon.startTime = '9:00';
+        mon.breakStart = '12:00';
+        mon.breakFinish = '13:00';
+        mon.finishTime = '17:00';
+        await this.timetableRepository.save(mon);
+        let tue = this.timetableRepository.create();
+        tue.id = '7402177d-65d9-439a-87ea-18e86c79eb7b';
+        tue.day = 'Tue';
+        tue.startTime = '8:00';
+        tue.breakStart = '12:00';
+        tue.breakFinish = '13:00';
+        tue.finishTime = '16:00';
+        await this.timetableRepository.save(tue);
+        let wed = this.timetableRepository.create();
+        wed.id = '7403177d-65d9-439a-87ea-18e86c79eb7b';
+        wed.day = 'Wed';
+        wed.startTime = '8:30';
+        wed.breakStart = '12:30';
+        wed.breakFinish = '13:30';
+        wed.finishTime = '16:30';
+        await this.timetableRepository.save(wed);
+        let thu = this.timetableRepository.create();
+        thu.id = '7404177d-65d9-439a-87ea-18e86c79eb7b';
+        thu.day = 'Thu';
+        thu.startTime = '9:30';
+        thu.breakStart = '12:30';
+        thu.breakFinish = '13:30';
+        thu.finishTime = '17:30';
+        await this.timetableRepository.save(thu);
+        let fri = this.timetableRepository.create();
+        fri.id = '7405177d-65d9-439a-87ea-18e86c79eb7b';
+        fri.day = 'Fri';
+        fri.startTime = '8:30';
+        fri.breakStart = '12:30';
+        fri.breakFinish = '13:00';
+        fri.finishTime = '14:30';
+        await this.timetableRepository.save(fri);
+        let sat = this.timetableRepository.create();
+        sat.id = '7406177d-65d9-439a-87ea-18e86c79eb7b';
+        sat.day = 'Sat';
+        sat.startTime = '9:00';
+        sat.breakStart = '9:00';
+        sat.breakFinish = '9:00';
+        sat.finishTime = '9:00';
+        await this.timetableRepository.save(sat);
+        let sun = this.timetableRepository.create();
+        sun.id = '7407177d-65d9-439a-87ea-18e86c79eb7b';
+        sun.day = 'Sun';
+        sun.startTime = '9:00';
+        sun.breakStart = '9:00';
+        sun.breakFinish = '9:00';
+        sun.finishTime = '9:00';
+        await this.timetableRepository.save(sun);
+    }
      
      setDaysWorkHours(date: string): void {
          console.log('setDaysWorkHours called: Date = ' + date);
@@ -69,6 +126,10 @@ export class BookingService implements IBookingService {
                 console.log('timetable from Repo = ' + this.timetable);
             } 
             this.setDaysWorkHours(selectedDateAndDuration.date);
+            
+            
+            this.populateTimetableDB();  // RUN ONCE !!!!
+            
             
             const dBSearchDate = this.convertDateToDbFormat(selectedDateAndDuration.date);
             console.log('Booking duration = ' + selectedDateAndDuration.duration + ' minutes');
