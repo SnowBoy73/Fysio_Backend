@@ -1,11 +1,11 @@
 import { BookingModel } from '../models/booking.model';
-import {dateEnquiryModel} from "../../api/dtos/date-enquiry.model";
+import {DateEnquiryModel} from "../../core/models/date-enquiry.model";
 
 export const IBookingServiceProvider = 'IBookingServiceProvider';
 export interface IBookingService {
     addBooking(newBooking: BookingModel): Promise<BookingModel[]>;
 
-    getAvailableTimesByDate(date: dateEnquiryModel): Promise<string[]>;
+    getAvailableTimesByDate(date: DateEnquiryModel): Promise<string[]>;
 
     convertDateToDbFormat(dateToConvert: string): string;
 
