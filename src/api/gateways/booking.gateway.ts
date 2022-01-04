@@ -95,7 +95,7 @@ export class BookingGateway
     
 
     @SubscribeMessage('deleteBooking')
-    async handleGetDateBookingsEvent(
+    async handleDeleteBookingEvent(
         @MessageBody() bookingToDeleteDto: BookingDto,
         @ConnectedSocket() client: Socket,
     ): Promise<void> {

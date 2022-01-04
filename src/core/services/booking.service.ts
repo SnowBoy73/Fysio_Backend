@@ -104,19 +104,20 @@ export class BookingService implements IBookingService {
                 this.breakFinish = dayToCheck.breakFinish;
                 this.finishTime = dayToCheck.finishTime;
                 let dayFound = true;
+                console.log('dayOfBooking = '+ dayOfBooking);
+                console.log('dayToCheck.day = '+ dayToCheck.day);
             }
         }
-        if (dayFound == false) {
-            console.log('ERROR: dayOfBooking NOT FOUND - please check DB');
+        if (dayFound === false) {
             //throw Error;
         }
         return null;
     }
 
-    
-    async getTimetable(): Promise<void> {
+
+    async getTimetable() {
         if (this.timetable == null) {
-        this.timetable = await this.timetableRepository.find({});
+            this.timetable = await this.timetableRepository.find({});
         }
     }
     
@@ -124,11 +125,11 @@ export class BookingService implements IBookingService {
     async getAvailableTimesByDate(selectedDateAndDuration: DateEnquiryModel): Promise<string[]> {
         // Returns a string array of available times from a DateEnquiryModel
         if (selectedDateAndDuration != null) {
-            this.getTimetable();
+            await this.getTimetable();
             this.setDaysWorkHours(selectedDateAndDuration.date);
-            // Get existing bookings on the date fromthe dateEnquiryModel
+        // Get existing bookings on the date fromthe dateEnquiryModel
             const dBSearchDate = this.convertDateToDbFormat(selectedDateAndDuration.date);
-            const bookingsOnSelectedDate: BookingEntity[] = await this.getBookingsByDate(dBSearchDate)
+            const bookingsOnSelectedDate: BookingEntity[] = await this.getBookingsByDate(dBSearchDate);
         // Convert returned bookings times to minutes after midnight
             const datesBookingTimesInMinutesAfterMidnight: number[] = [];
             for (let b = 0; b < bookingsOnSelectedDate.length; b++) {
@@ -180,28 +181,22 @@ export class BookingService implements IBookingService {
 
     async getBookingsByDate(selectedDate: string): Promise<BookingModel[]> {
         console.log('SERVICE: getBookingsByDate started');
-
         const bookingsOnSelectedDate: BookingEntity[] = await this.bookingRepository.find({
             where: {date: selectedDate},
         });
         console.log('-----bookingsOnSelectedDate.length = ' + bookingsOnSelectedDate.toString() );
         console.log('-----bookingsOnSelectedDate.selectedDate = ' + selectedDate );
-
-        //  const updatedstock: Stock = JSON.parse(JSON.stringify(stockDB));  // NEED TO PARSE???
         return bookingsOnSelectedDate;
     }
 
 
     async addBooking(newBooking: BookingModel): Promise<BookingModel[]> {
-        console.log('booking service: addBooking');
         const numberOfSlotsForBooking: number = newBooking.duration / this.bookingSlotDuration;
-        console.log('numberOfSlotsForBooking: ' + numberOfSlotsForBooking);
-        const createdBookings: BookingModel[] = [];  // NEEDED?
+        const createdBookings: BookingModel[] = [];
         const convertedDate: string = this.convertDateToDbFormat(newBooking.date);
         // Added security check to make sure time is available 
         let checkIfBookingTimeIsAvailable: BookingModel[] = await this.getBookingOnDateAndTime(newBooking);
         if (checkIfBookingTimeIsAvailable) {
-            console.log('convertedDate: ', convertedDate);
             const bookingStartTimeInMinutesAfterMidnight: number = this.convertTimeToMinutesAfterMidnight(newBooking.time);
 //  Cycle through booking array
             for (let i = 0; i < numberOfSlotsForBooking; i++) {
@@ -225,7 +220,7 @@ export class BookingService implements IBookingService {
                 console.log('SERVICE: pushes booking: ', createBooking);
             }
             console.log('SERVICE: returns booking: ', createdBookings);
-            return createdBookings;  // will this work??
+            return createdBookings;
         } else {
             console.log('SERVICE: addbooking ERROR: Time is not available');
         }
@@ -270,7 +265,7 @@ export class BookingService implements IBookingService {
         } else {
             // No booking at that time found
             console.log('SERVICE ERROR in deleteBooking: No booking at that time found');
-            return []; // NEW for testing - should be error
+            return [];
         }
     }
 
@@ -311,7 +306,6 @@ export class BookingService implements IBookingService {
         for (let i = 0; i < numberOfBookingSlots; i++) {
             let bookingTimeInMinutesAfterMidnight =
                 (this.convertTimeToMinutesAfterMidnight(bookingToGet.time) + (i * this.bookingSlotDuration));
-
             // console.log('bookingTimeInMinutesAfterMidnight [' + i + '] = ' + bookingTimeInMinutesAfterMidnight);
             let bookingTime = this.convertMinutesAfterMidnightToTime(bookingTimeInMinutesAfterMidnight);
             console.log('bookingToGetDate = [' + i + '] = ' + bookingToGetDate);
