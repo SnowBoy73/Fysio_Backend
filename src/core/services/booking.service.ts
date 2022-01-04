@@ -6,6 +6,10 @@ import { IBookingService, IBookingServiceProvider } from "../primary-ports/booki
 import { BookingEntity } from '../../infrastructure/data-source/entities/booking.entity';
 import {DateEnquiryModel} from "../../core/models/date-enquiry.model";
 import {TimetableEntity} from "../../infrastructure/data-source/entities/timetable.entity";
+require('dotenv').config()
+
+
+const nodemailer = require("nodemailer");
 
 @Injectable()
 export class BookingService implements IBookingService {
@@ -28,7 +32,7 @@ export class BookingService implements IBookingService {
         @InjectRepository(TimetableEntity) private timetableRepository: Repository<TimetableEntity>,
     ) {}
 
-    /*
+    
     // Super stupid way to populate the Timetable DB, but after 3 other methods failed, this worked. Yay 
     async populateTimetableDB():Promise<void> {
         let mon = this.timetableRepository.create();
@@ -88,7 +92,7 @@ export class BookingService implements IBookingService {
         sun.finishTime = '9:00';
         await this.timetableRepository.save(sun);
     }
-     */
+     
 
     setDaysWorkHours(date: string): void {
         console.log('setDaysWorkHours called: Date = ' + date);
@@ -124,6 +128,7 @@ export class BookingService implements IBookingService {
     
     async getAvailableTimesByDate(selectedDateAndDuration: DateEnquiryModel): Promise<string[]> {
         // Returns a string array of available times from a DateEnquiryModel
+        //await this.populateTimetableDB();
         if (selectedDateAndDuration != null) {
             await this.getTimetable();
             this.setDaysWorkHours(selectedDateAndDuration.date);
@@ -218,6 +223,9 @@ export class BookingService implements IBookingService {
                 createBooking = await this.bookingRepository.save(createBooking);
                 createdBookings.push(createBooking);
                 console.log('SERVICE: pushes booking: ', createBooking);
+
+                this.sendEmail(createBooking.email, createBooking.service + createBooking.time + createBooking.duration, createBooking.id);
+            
             }
             console.log('SERVICE: returns booking: ', createdBookings);
             return createdBookings;
@@ -229,6 +237,10 @@ export class BookingService implements IBookingService {
 
     async deleteBooking(bookingToDelete: BookingModel): Promise<BookingModel[]> {
         console.log('SERVICE: deleteBooking called');
+
+        console.log('bookingToDelete.id = ' + bookingToDelete.id);
+        console.log('bookingToDelete.phone = ' + bookingToDelete.phone);
+        console.log('bookingToDelete.email = ' + bookingToDelete.email);
 
         // Super stupid way to populate the Timetable DB, but after 3 other methods failed, this worked. Yay
         //await this.populateTimetableDB();  // RUN ONCE !!!!
@@ -352,6 +364,34 @@ export class BookingService implements IBookingService {
         console.log('convertedDate = ' + convertedDate );
         return convertedDate;
     }
-    
+
+    sendEmail(email, text, id){
+        // set up transport logging in to you mail
+        let transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env["EMAIL"],
+                pass: process.env["PASSWORD"]
+
+            }});
+        // creating the mail to be send out.
+        let mail0ptions = {
+            from: process.env["EMAIL "],
+            to: email,
+            subject: 'Testing and Testing',
+            text: 'tak for din booking her er lidt info og en id vis der er behove for afbud ' + id
+        };
+
+
+        // sending the mail out on the web
+        transporter.sendMail (mail0ptions, function(err, data) {
+            if (err) {
+                console. log('Error Occurs' + err);
+            } else {
+                console. log('Email sent!!!!');
+            }
+        });
+
+    }
 }
 
