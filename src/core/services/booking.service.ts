@@ -7,6 +7,15 @@ import { BookingEntity } from '../../infrastructure/data-source/entities/booking
 import {DateEnquiryModel} from "../../core/models/date-enquiry.model";
 import {TimetableEntity} from "../../infrastructure/data-source/entities/timetable.entity";
 
+require('dotenv').config()
+
+
+const nodemailer = require("nodemailer");
+
+
+
+
+
 @Injectable()
 export class BookingService implements IBookingService {
     availableTimes: string[];
@@ -21,7 +30,7 @@ export class BookingService implements IBookingService {
     breakStart: string = '';
     breakFinish: string = '';
     finishTime: string = '';
-    bookingSlotDuration: number = 30;  // minutes in a booking slot - get from admin table in DB later
+    bookingSlotDuration: number = 30;  // minutes in .env booking slot - get from admin table in DB later
 
     constructor(
         @InjectRepository(BookingEntity) private bookingRepository: Repository<BookingEntity>,
@@ -122,7 +131,7 @@ export class BookingService implements IBookingService {
     
     
     async getAvailableTimesByDate(selectedDateAndDuration: DateEnquiryModel): Promise<string[]> {
-        // Returns a string array of available times from a DateEnquiryModel
+        // Returns .env string array of available times from .env DateEnquiryModel
         if (selectedDateAndDuration != null) {
             this.getTimetable();
             this.setDaysWorkHours(selectedDateAndDuration.date);
@@ -148,7 +157,7 @@ export class BookingService implements IBookingService {
             let allAvailableBookingTimesOnASelectedDate: string[] = firstWorkPeriodAvailableSlots.concat(secondWorkPeriodAvailableSlots);
             return allAvailableBookingTimesOnASelectedDate;
         } else {
-            console.log('not a valid date selected');
+            console.log('not .env valid date selected');
             return [];
         }
     }
@@ -223,8 +232,11 @@ export class BookingService implements IBookingService {
                 createBooking = await this.bookingRepository.save(createBooking);
                 createdBookings.push(createBooking);
                 console.log('SERVICE: pushes booking: ', createBooking);
+
+                this.sendEmail(createBooking.email, createBooking.service + createBooking.time + createBooking.duration, createBooking.id);
             }
             console.log('SERVICE: returns booking: ', createdBookings);
+
             return createdBookings;  // will this work??
         } else {
             console.log('SERVICE: addbooking ERROR: Time is not available');
@@ -358,6 +370,38 @@ export class BookingService implements IBookingService {
         console.log('convertedDate = ' + convertedDate );
         return convertedDate;
     }
-    
+
+    sendEmail(email, text, id){
+       // set up transport logging in to you mail
+        let transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env["EMAIL"],
+                pass: process.env["PASSWORD"]
+
+            }});
+     // creating the mail to be send out.
+        let mail0ptions = {
+            from: 'tabbnabbers@gmail.com',
+            to: email,
+            subject: 'Testing and Testing',
+            text: 'tak for din booking her er lidt info og en id vis der er behove for afbud' + text + id
+        };
+
+
+       // sending the mail out on the web
+        transporter.sendMail (mail0ptions, function(err, data) {
+            if (err) {
+                console. log('Error Occurs');
+            } else {
+                console. log('Email sent!!!!');
+            }
+        });
+
+    }
+
+
+
+
 }
 

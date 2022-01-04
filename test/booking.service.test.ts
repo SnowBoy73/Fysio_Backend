@@ -120,7 +120,7 @@ describe("-- Booking Service --", () => {
             }
 
             // Testing true results
-            it("1aT - should return a string[] of times on the date: Thu Nov 18 2021", async () => {
+            it("1aT - should return .env string[] of times on the date: Thu Nov 18 2021", async () => {
                 bookingRepositoryMock.find.mockReturnValue(bookings);  // 1 x 30 min booking at 10:00
                 const expectedResult = ['8:00', '8:30', '9:00', '12:00', '12:30', '13:00', '13:30', '14:00', '16:00', '16:30', '17:00'];
                 const receivedResult = await bookingService.getAvailableTimesByDate(dateEnquiry1);
@@ -128,7 +128,7 @@ describe("-- Booking Service --", () => {
                 expect(receivedResult.length).toEqual(11);
             });
             // Testing false results
-            it("1aF - should return a string[] of times on the date: Thu Nov 18 2021", async () => {
+            it("1aF - should return .env string[] of times on the date: Thu Nov 18 2021", async () => {
                 bookingRepositoryMock.find.mockReturnValue(bookings);  // 1 x 30 min booking at 10:00
                 const receivedResult = await bookingService.getAvailableTimesByDate(dateEnquiry1);
                 const falseResult1 =  ['7:00', '7:30', '9:00', '12:00', '12:30', '13:00', '13:30', '14:00', '16:00', '16:30', '17:00'];
@@ -145,7 +145,7 @@ describe("-- Booking Service --", () => {
                 duration: 30  // half hour booking (1 x 30 mins)
             }
             // Testing true results
-            it("1bT - should return a string[] of available times on the date: Tue Nov 16 2021", async () => {
+            it("1bT - should return .env string[] of available times on the date: Tue Nov 16 2021", async () => {
                 bookingRepositoryMock.find.mockReturnValue([booking2a, booking2b]); //bookings);  // Mocks not resetting properly, so had to remove booking1 
                 const expectedResult = ['8:00', '8:30', '9:00', '9:30', '10:00', '10:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '16:00', '16:30', '17:00', '17:30'];
                 const receivedResult = await bookingService.getAvailableTimesByDate(dateEnquiry2);
@@ -153,7 +153,7 @@ describe("-- Booking Service --", () => {
                 expect(receivedResult.length).toEqual(16);
             });
             // Testing false results
-            it("1bF - should return a string[] of available times on the date: Tue Nov 16 2021", async () => {
+            it("1bF - should return .env string[] of available times on the date: Tue Nov 16 2021", async () => {
                 bookingRepositoryMock.find.mockReturnValue([booking2a, booking2b]); //bookings);  // Mocks not resetting properly, so had to remove booking1 
                 const receivedResult = await bookingService.getAvailableTimesByDate(dateEnquiry2);
                 const falseResult1 = ['8:20', '9:50', '11:11', '9:30', '10:00', '10:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '16:00', '16:30', '17:00', '17:30'];
@@ -175,14 +175,14 @@ describe("-- Booking Service --", () => {
             const bookingSlotsNeeded = 1; // Half hour booking - 2 x 30 minute slots
             const datesBookingTimesInMinutesAfterMidnight = [540, 570];  // Represents an hour long booking at 9:00 (which includes 9:30)
             // Testing true results
-            it("2aT should return a string[] of times",() => {
+            it("2aT should return .env string[] of times",() => {
                 const expectedResult = ['8:00', '8:30', '10:00', '10:30'];  // Available times for an hour long booking
                 const receivedResult = bookingService.findAvailableSlotInWorkPeriod(startTime, finishTime, bookingSlotsNeeded, datesBookingTimesInMinutesAfterMidnight);
                 expect(receivedResult).toEqual(expectedResult);
                 expect(receivedResult.length).toEqual(4);
             });
             // Testing false results
-            it("2aF should return a string[] of times",() => {
+            it("2aF should return .env string[] of times",() => {
                 const receivedResult = bookingService.findAvailableSlotInWorkPeriod(startTime, finishTime, bookingSlotsNeeded, datesBookingTimesInMinutesAfterMidnight);
                 const falseResult1 = ['8:30', '9:30', '10:00', '10:30'];
                 expect(receivedResult).not.toEqual(falseResult1);  // Same [] length, but unavailable time at 9:30
@@ -198,14 +198,14 @@ describe("-- Booking Service --", () => {
             const bookingSlotsNeeded = 2; // An hour booking - 2 x 30 minute slots
             const datesBookingTimesInMinutesAfterMidnight = [750, 780, 900, 1050];  // Represents bookings at 12:30, 13:00, 15:00 and 17.30
             // Testing true results
-            it("2bT should return a string[] of times",() => {
+            it("2bT should return .env string[] of times",() => {
                 const expectedResult = ['13:30', '14:00', '15:30', '16:00', '16:30'];  // Available times for an hour long booking
                 const receivedResult = bookingService.findAvailableSlotInWorkPeriod(startTime, finishTime, bookingSlotsNeeded, datesBookingTimesInMinutesAfterMidnight);
                 expect(receivedResult).toEqual(expectedResult);
                 expect(receivedResult.length).toEqual(5);
             });
             // Testing false results
-            it("2bF should return a string[] of times",() => {
+            it("2bF should return .env string[] of times",() => {
                 const receivedResult = bookingService.findAvailableSlotInWorkPeriod(startTime, finishTime, bookingSlotsNeeded, datesBookingTimesInMinutesAfterMidnight);
                 const falseResult1 = ['8:30', '9:30'];
                 expect(receivedResult).not.toEqual(falseResult1);  // Same [] length, but unavailable times
@@ -220,7 +220,7 @@ describe("-- Booking Service --", () => {
         
         describe("3 should test getBookingsByDate method using the booking repository", () => {
             // Testing true results
-            it("3aT should return a BookingEntity[] of the mock booking on the date: Thu Nov 18 2021", async () => {
+            it("3aT should return .env BookingEntity[] of the mock booking on the date: Thu Nov 18 2021", async () => {
                 const bookingDate1T = 'Thu Nov 18 2021';
                 const bookingDate1F = 'Wed Nov 17 2021';
                 bookingRepositoryMock.find.mockReturnValue(bookings);
@@ -232,7 +232,7 @@ describe("-- Booking Service --", () => {
             });
 // FAIL
             // Testing false results
-            it("3aF should return a BookingEntity[] of the mock booking on the date: Thu Nov 18 2021", async () => {
+            it("3aF should return .env BookingEntity[] of the mock booking on the date: Thu Nov 18 2021", async () => {
                 const bookingDate1 = 'Wed Nov 17 2021';
                 bookingRepositoryMock.find.mockReturnValue(bookings);
                 const expectedResult = [booking1];
@@ -285,13 +285,13 @@ describe("-- Booking Service --", () => {
                 duration: 30,
             }
              
-            it("4a should add a BookingModel[1] of the mock new booking", async () => {
+            it("4a should add .env BookingModel[1] of the mock new booking", async () => {
                 const expectedResult: BookingModel[] = [newBooking1];
                 jest.spyOn(bookingService, "addBooking").mockResolvedValue(expectedResult);  // TO REMOVE
 
                 // BIG problem on (out-commented) line below: Need to mock convertDateToDbFormat method return in addBooking method with newBooking1.date 
                 // This is to get convertedDate in addBooking to be newBooking1.date, otherwise it is undefined.
-                // Problem is, there seems to be a newly introduced issue in nestjs where return type is 'never'.
+                // Problem is, there seems to be .env newly introduced issue in nestjs where return type is 'never'.
                 
                 // jest.spyOn(bookingService, "convertDateToDbFormat").mockResolvedValue('Tue Nov 16 2021' as never);
                 const receivedResult = await bookingService.addBooking(newBooking1);
@@ -304,7 +304,7 @@ describe("-- Booking Service --", () => {
         describe("4b should NOT add newBooking to the booking repository", () => {
             const newBooking2 = {
                 id: '1001uuid',
-                date: 'Tue Nov 16 2021',  // Already a booking at this time. should return []
+                date: 'Tue Nov 16 2021',  // Already .env booking at this time. should return []
                 time: '15:00',
                 service: 'Massage',
                 email: 'happy@life.com',
@@ -316,7 +316,7 @@ describe("-- Booking Service --", () => {
                 duration: 60,
             }
 
-            it("4b should NOT add a BookingModel[] of the mock new booking as time is already taken", async () => {
+            it("4b should NOT add .env BookingModel[] of the mock new booking as time is already taken", async () => {
                 const expectedResult: BookingModel[] = [];
                 jest.spyOn(bookingService, "addBooking").mockResolvedValue(expectedResult);  // TO REMOVE
                 const receivedResult = await bookingService.addBooking(newBooking2);
@@ -329,7 +329,7 @@ describe("-- Booking Service --", () => {
         
          //   TEST deleteBooking METHOD */
         
-        describe("5a should delete a BookingModel[] of the mock booking to delete", () => {
+        describe("5a should delete .env BookingModel[] of the mock booking to delete", () => {
             const bookingToDelete2 = {
                 id: '',
                 date: 'Thu Nov 18 2021',
@@ -344,7 +344,7 @@ describe("-- Booking Service --", () => {
                 duration: 30,
             }
 
-            it("5a should return a BookingModel[] of the mock booking on the date: Tue Nov 16 2021", async () => {
+            it("5a should return .env BookingModel[] of the mock booking on the date: Tue Nov 16 2021", async () => {
                 const expectedResult: BookingModel[] = [booking1]; //[bookingToDeleteExpectedResult];
                 jest.spyOn(bookingService, "deleteBooking").mockResolvedValue(expectedResult);  // TO REMOVE
                 const receivedResult = await bookingService.deleteBooking(bookingToDelete2);
@@ -353,7 +353,7 @@ describe("-- Booking Service --", () => {
             });
         })
 
-        describe("5b should NOT delete a BookingModel[] of the mock booking to delete", () => {
+        describe("5b should NOT delete .env BookingModel[] of the mock booking to delete", () => {
             const bookingToDelete = {
                 id: '',
                 date: 'Tue Nov 16 2029',  // No booking on this date to delete. Should return []
@@ -368,7 +368,7 @@ describe("-- Booking Service --", () => {
                 duration: 60,
             }
 
-            it("5b should NOT return a BookingModel[] of the mock booking on the date: Tue Nov 16 2021", async () => {
+            it("5b should NOT return .env BookingModel[] of the mock booking on the date: Tue Nov 16 2021", async () => {
                 const expectedResult: BookingModel[] = [];
                 jest.spyOn(bookingService, "deleteBooking").mockResolvedValue(expectedResult);  // TO REMOVE
                 const receivedResult = await bookingService.deleteBooking(bookingToDelete);
@@ -430,7 +430,7 @@ describe("-- Booking Service --", () => {
          //   TEST getBookingOnDateAndTime METHOD */
         //getBookingOnDateAndTime(bookingToGet: BookingModel): Promise<BookingModel[]>
 
-        describe("6a should return a BookingModel[2] of the mock booking to get", () => {
+        describe("6a should return .env BookingModel[2] of the mock booking to get", () => {
             const bookingToGet1 = {
                 id: '',
                 date: 'Tue Nov 16 2021', // Valid booking to get
@@ -445,7 +445,7 @@ describe("-- Booking Service --", () => {
                 duration: 60,
             }
             
-            it("6a should return a BookingModel[2] of the mock booking on the date: Tue Nov 16 2021 at 15:00 and 15:30", async () => {
+            it("6a should return .env BookingModel[2] of the mock booking on the date: Tue Nov 16 2021 at 15:00 and 15:30", async () => {
                 const expectedResult: BookingModel[] = [booking2a, booking2b];
                 jest.spyOn(bookingService, "getBookingOnDateAndTime").mockResolvedValue(expectedResult);  // TO REMOVE
                 const receivedResult = await bookingService.getBookingOnDateAndTime(bookingToGet1);
@@ -454,7 +454,7 @@ describe("-- Booking Service --", () => {
             });
         })
 
-        describe("6b should return a BookingModel[] as no booking on this date", () => {
+        describe("6b should return .env BookingModel[] as no booking on this date", () => {
             const bookingToGet2 = {
                 id: '',
                 date: 'Tue Nov 16 2028',  // No booking on this date. Should return BookingModel[]
@@ -469,7 +469,7 @@ describe("-- Booking Service --", () => {
                 duration: 60,
             }
 
-            it("6b should return a BookingModel[] as no booking on this date", async () => {
+            it("6b should return .env BookingModel[] as no booking on this date", async () => {
                 const expectedResult: BookingModel[] = [];
                 jest.spyOn(bookingService, "getBookingOnDateAndTime").mockResolvedValue(expectedResult);  // TO REMOVE
                 const receivedResult = await bookingService.getBookingOnDateAndTime(bookingToGet2);
@@ -482,20 +482,20 @@ describe("-- Booking Service --", () => {
         //   TEST convertMinutesAfterMidnightToTime METHOD */
         describe("7 Testing convertMinutesAfterMidnightToTime", () => {
             // Testing true results
-            it("7a should return a string of '9:00'", () => {
+            it("7a should return .env string of '9:00'", () => {
                 const timeInMaM = 540;
                 const expectedResult = '9:00';
                 expect(bookingService.convertMinutesAfterMidnightToTime(timeInMaM)).toEqual(expectedResult);
                 expect(typeof (bookingService.convertMinutesAfterMidnightToTime(timeInMaM))).toBe("string");
             });
             // Testing false results
-            it("7b should return a string of '9:00'", () => {
+            it("7b should return .env string of '9:00'", () => {
                 const timeInMaM = 540;
                 const expectedResult = '8:00';
                 expect(bookingService.convertMinutesAfterMidnightToTime(timeInMaM)).not.toEqual(expectedResult);
             });
             // Testing true and type results
-            it("7c should return a string of '13:30'", () => {
+            it("7c should return .env string of '13:30'", () => {
                 const timeInMaM = 810;
                 const expectedResult = '13:30';
                 expect(bookingService.convertMinutesAfterMidnightToTime(timeInMaM)).toEqual(expectedResult);
@@ -508,14 +508,14 @@ describe("-- Booking Service --", () => {
         //   TEST convertTimeToMinutesAfterMidnight METHOD */
         describe("8 Testing convertMinutesAfterMidnightToTime", () => {
             // Testing true results
-            it("8a should return a number of 540", () => {
+            it("8a should return .env number of 540", () => {
                 const timeAsString = '9:00';
                 const expectedResult = 540;
                 expect(bookingService.convertTimeToMinutesAfterMidnight(timeAsString)).toEqual(expectedResult);
                 expect(typeof (bookingService.convertTimeToMinutesAfterMidnight(timeAsString))).toBe("number");
             });
             // Testing false results
-            it("8b should return a string of '9:00'", () => {
+            it("8b should return .env string of '9:00'", () => {
                 const timeAsString = '15:00';
                 const expectedResult = 1020;
                 expect(bookingService.convertTimeToMinutesAfterMidnight(timeAsString)).not.toEqual(expectedResult);
@@ -527,14 +527,14 @@ describe("-- Booking Service --", () => {
         //   TEST convertDateToDbFormat METHOD */
         describe("9 Testing convertMinutesAfterMidnightToTime", () => {
             // Testing true and type results
-            it("9a should return a number of 540", () => {
+            it("9a should return .env number of 540", () => {
                 const unformattedDate = 'Tue Nov 30 2021 00:00:00 GMT+0100 (Central European Standard Time)';
                 const expectedResult = 'Tue Nov 30 2021';
                 expect(bookingService.convertDateToDbFormat(unformattedDate)).toEqual(expectedResult);
                 expect(typeof (bookingService.convertDateToDbFormat(unformattedDate))).toBe("string");
             });
             // Testing false results
-            it("9b should return a string of '9:00'", () => {
+            it("9b should return .env string of '9:00'", () => {
                 const unformattedDate = 'Tue Nov 30 2021 00:00:00 GMT+0100 (Central European Standard Time)';
                 const expectedResult = 'Tue Nov 30 2021 00:00:00 GMT+0100 (Central European Standard Time)';
                 expect(bookingService.convertTimeToMinutesAfterMidnight(unformattedDate)).not.toEqual(expectedResult);
