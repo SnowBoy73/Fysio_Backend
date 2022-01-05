@@ -34,5 +34,4 @@ export class BookingEntity {
 
     @Column({ unique: false })
     public duration: number;
-
 }

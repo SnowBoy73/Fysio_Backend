@@ -201,14 +201,12 @@ export class BookingService implements IBookingService {
         const convertedDate: string = this.convertDateToDbFormat(newBooking.date);
         // Added security check to make sure time is available 
         let checkIfBookingTimeIsAvailable: BookingModel[] = await this.getBookingOnDateAndTime(newBooking);
-        if (checkIfBookingTimeIsAvailable) {
+        if (checkIfBookingTimeIsAvailable.length == 0) {
             const bookingStartTimeInMinutesAfterMidnight: number = this.convertTimeToMinutesAfterMidnight(newBooking.time);
-//  Cycle through booking array
+            //  Cycle through booking array
             for (let i = 0; i < numberOfSlotsForBooking; i++) {
                 let bookingTimeInMinutesAfterMidnight: number = bookingStartTimeInMinutesAfterMidnight + (i * this.bookingSlotDuration);
-                console.log('bookingTimeInMinutesAfterMidnight ' + i + ' = ' + bookingTimeInMinutesAfterMidnight);
                 let bookingTime: string = this.convertMinutesAfterMidnightToTime(bookingTimeInMinutesAfterMidnight);
-                console.log(' bookingTime ' + i + ' = ' + bookingTime);
                 let createBooking = this.bookingRepository.create();
                 createBooking.date = convertedDate;
                 createBooking.time = bookingTime;
@@ -222,12 +220,8 @@ export class BookingService implements IBookingService {
                 createBooking.duration = newBooking.duration;
                 createBooking = await this.bookingRepository.save(createBooking);
                 createdBookings.push(createBooking);
-                console.log('SERVICE: pushes booking: ', createBooking);
-
                 this.sendEmail(createBooking.email, createBooking.service + createBooking.time + createBooking.duration, createBooking.id);
-            
             }
-            console.log('SERVICE: returns booking: ', createdBookings);
             return createdBookings;
         } else {
             console.log('SERVICE: addbooking ERROR: Time is not available');
@@ -314,23 +308,17 @@ export class BookingService implements IBookingService {
         let bookingFound: BookingModel[] = [];
         let bookingToGetDate: string = this.convertDateToDbFormat(bookingToGet.date);
         let numberOfBookingSlots = bookingToGet.duration / this.bookingSlotDuration;
-        console.log('numberOfBookingSlots = ' + numberOfBookingSlots);
         for (let i = 0; i < numberOfBookingSlots; i++) {
             let bookingTimeInMinutesAfterMidnight =
                 (this.convertTimeToMinutesAfterMidnight(bookingToGet.time) + (i * this.bookingSlotDuration));
-            // console.log('bookingTimeInMinutesAfterMidnight [' + i + '] = ' + bookingTimeInMinutesAfterMidnight);
             let bookingTime = this.convertMinutesAfterMidnightToTime(bookingTimeInMinutesAfterMidnight);
-            console.log('bookingToGetDate = [' + i + '] = ' + bookingToGetDate);
-            console.log('bookingTime = [' + i + '] = ' + bookingTime);
             let bookingAtGivenDateAndTime: BookingModel = await this.bookingRepository.findOne({
                 where: {date: bookingToGetDate, time: bookingTime},
             });
-            console.log('bookingAtGivenDateAndTime = [' + i + '] = ' + bookingAtGivenDateAndTime);
             if (bookingAtGivenDateAndTime) {
                 bookingFound.push(bookingAtGivenDateAndTime)
             }
         }
-        console.log('bookingFound = ' + bookingFound);
         return bookingFound;
     }
 
