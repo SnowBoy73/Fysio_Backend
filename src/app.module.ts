@@ -8,12 +8,6 @@ import { ServicesModule } from './api/services.module';
 
 @Module({
   imports: [
-    /*
-      TypeOrmModule.forFeature(
-        [ServicesEntity, BookingEntity , TimetableEntity, AdminEntity],
-    ),
-*/
-    //TypeOrmModule.forRoot(),
     BookingModule,
     DatabaseModule,
     ServicesModule,

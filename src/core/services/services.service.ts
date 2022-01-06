@@ -17,7 +17,6 @@ export class ServicesService implements IServicesService {
         const allServices: ServicesEntity[] = await this.servicesRepository.find();
         console.log('-----allServices.length = ' + allServices.toString() );
         return allServices;
-        //return null; // mock
     }
 
 }

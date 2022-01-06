@@ -1,18 +1,14 @@
-// file: class_a.test.js
-//import { ClassB } from "../src/class_b";
 
-
- 
 // https://medium.com/nerd-for-tech/testing-typescript-with-jest-290eaee9479d
 
 import {Test, TestingModule} from '@nestjs/testing';
 import {BookingService} from '../src/core/services/booking.service';
 import {BookingEntity} from '../src/infrastructure/data-source/entities/booking.entity';
 import {BookingModel} from '../src/core/models/booking.model';
-import {dateEnquiryModel} from '../src/api/dtos/date-enquiry.model';
+import {DateEnquiryModel} from '../src/core/models/date-enquiry.model';
 import {Repository} from 'typeorm';
 import {getRepositoryToken} from '@nestjs/typeorm';
-
+import {TimetableEntity} from "../src/infrastructure/data-source/entities/timetable.entity";
 //jest.mock('../src/core/models/booking.model');
 //jest.mock('../src/infrastructure/data-source/entities/booking.entity');
 
@@ -33,8 +29,7 @@ describe("-- Booking Service --", () => {
     let module: TestingModule;
     let bookingRepositoryMock: MockType<Repository<BookingEntity>>;
     const mockNumberToSatisfyParameters = 0;
-
-
+    
     beforeAll(async () => {
         module = await Test.createTestingModule({
             providers: [
@@ -42,18 +37,10 @@ describe("-- Booking Service --", () => {
                 {provide: getRepositoryToken(BookingEntity), useFactory: repositoryMockFactory},
             ]
         }).compile();
-
         bookingService = module.get<BookingService>(BookingService);
         bookingRepositoryMock = module.get(getRepositoryToken(BookingEntity));
     });
 
-/*
-    afterEach(() => {
-        jest.clearAllMocks();
-    });
-*/
-   
-    
     // Set up 3 mock repository entries
     describe("should populate the booking repository with the following BookingModels", () => {
         const booking1 = new BookingEntity();  // Mock repository entry 1
@@ -97,8 +84,22 @@ describe("-- Booking Service --", () => {
 
         let bookings: BookingModel[] = [];
         bookings.push(booking1, booking2a, booking2b);
-
-
+        
+        /*
+        let booking1e: BookingEntity = bookingRepositoryMock.create();
+        booking1e.id =  '1000uuid';
+        booking1e.date = 'Thu Nov 18 2021';
+        booking1e.time = '10:00';
+        booking1e.service = 'Massage';
+        booking1e.email = 'happy@life.com';
+        booking1e.phone = 12345678;
+        booking1e.address = '11 Freedom Ave';
+        booking1e.city = 'Peacetown';
+        booking1e.postcode = 1234;
+        booking1e.notes = 'Go easy on me';
+        booking1e.duration = 30;
+        bookingRepositoryMock.save(booking1e); */ // Error at save command.
+        
         afterEach(() => {
             jest.resetAllMocks();
             jest.clearAllMocks();
@@ -114,7 +115,7 @@ describe("-- Booking Service --", () => {
         //  breakFinish: string = '12:00';
         //  finishTime: string = '18:00';
         describe("1 should test getBookingsByDate method using the booking repository", () => {
-            const dateEnquiry1: dateEnquiryModel = {
+            const dateEnquiry1: DateEnquiryModel = {
                 date: 'Thu Nov 18 2021 00:00:00 GMT+0100 (Central European Standard Time)',
                 duration: 60  // one hour booking (2 x 30 minutes)
             }
@@ -140,7 +141,7 @@ describe("-- Booking Service --", () => {
         })
     
         describe("1 - should test getBookingsByDate method using the booking repository", () => {
-            const dateEnquiry2: dateEnquiryModel = {
+            const dateEnquiry2: DateEnquiryModel = {
                 date: 'Tue Nov 16 2021 00:00:00 GMT+0100 (Central European Standard Time)',
                 duration: 30  // half hour booking (1 x 30 mins)
             }
@@ -217,7 +218,6 @@ describe("-- Booking Service --", () => {
         
         //  TEST 3 - getBookingsByDate METHOD
         //  async getBookingsByDate(selectedDate: string): Promise<BookingModel[]> {
-        
         describe("3 should test getBookingsByDate method using the booking repository", () => {
             // Testing true results
             it("3aT should return a BookingEntity[] of the mock booking on the date: Thu Nov 18 2021", async () => {
@@ -225,7 +225,7 @@ describe("-- Booking Service --", () => {
                 const bookingDate1F = 'Wed Nov 17 2021';
                 bookingRepositoryMock.find.mockReturnValue(bookings);
                 const expectedResult = [booking1]; //
-                jest.spyOn(bookingService, "getBookingsByDate").mockResolvedValue(expectedResult);  // TO REMOVE
+                //jest.spyOn(bookingService, "getBookingsByDate").mockResolvedValue(expectedResult);  // TO REMOVE
                 let receivedResult3T = await bookingService.getBookingsByDate(bookingDate1T);
                 expect(receivedResult3T).toEqual(expectedResult);
                 expect(receivedResult3T.length).toEqual(1);  // 1 x 30 minutes

@@ -21,3 +21,4 @@ export class TimetableEntity {
     public finishTime: string;
 
 }
+

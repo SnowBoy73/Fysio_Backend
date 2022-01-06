@@ -6,15 +6,11 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule, {cors: true});
   app.enableCors({
-   /* origin: "http://localhost:4200",
-    credentials: true */  // From Nedas
-    origin: true,  // from BestPlays
+    origin: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',  // from BestPlays
   });
-  
   app.enableCors();
   const configService: ConfigService = app.get(ConfigService);
   await app.listen(configService.get('PORT') || 8080);
-  //await app.listen(process.env.PORT || 8080); // https://shivamv12.medium.com/deploy-nestjs-on-heroku-in-5-simple-steps-cc7625ea6167
 }
 bootstrap();
