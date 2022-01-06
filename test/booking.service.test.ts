@@ -98,7 +98,7 @@ describe("-- Booking Service --", () => {
         booking1e.postcode = 1234;
         booking1e.notes = 'Go easy on me';
         booking1e.duration = 30;
-        bookingRepositoryMock.save(booking1e); */
+        bookingRepositoryMock.save(booking1e); */ // Error at save command.
         
         afterEach(() => {
             jest.resetAllMocks();
@@ -218,7 +218,6 @@ describe("-- Booking Service --", () => {
         
         //  TEST 3 - getBookingsByDate METHOD
         //  async getBookingsByDate(selectedDate: string): Promise<BookingModel[]> {
-        
         describe("3 should test getBookingsByDate method using the booking repository", () => {
             // Testing true results
             it("3aT should return a BookingEntity[] of the mock booking on the date: Thu Nov 18 2021", async () => {
@@ -226,7 +225,7 @@ describe("-- Booking Service --", () => {
                 const bookingDate1F = 'Wed Nov 17 2021';
                 bookingRepositoryMock.find.mockReturnValue(bookings);
                 const expectedResult = [booking1]; //
-                jest.spyOn(bookingService, "getBookingsByDate").mockResolvedValue(expectedResult);  // TO REMOVE
+                //jest.spyOn(bookingService, "getBookingsByDate").mockResolvedValue(expectedResult);  // TO REMOVE
                 let receivedResult3T = await bookingService.getBookingsByDate(bookingDate1T);
                 expect(receivedResult3T).toEqual(expectedResult);
                 expect(receivedResult3T.length).toEqual(1);  // 1 x 30 minutes
